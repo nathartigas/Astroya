@@ -292,11 +292,11 @@ export default function Home() {
               {[
                 {
                   id: 1,
-                  title: "Studoio Armon",
-                  type: "Landing Page",
-                  description: "Landing page para empresa de design",
-                  image: "/StudioArmon.png",
-                  link: "https://kzmn7tnxcdtge8v6ktwq.lite.vusercontent.net/",
+                  title: "FuriApp Connect",
+                  type: "Aplicação Web",
+                  description: "Aplicação web para Furia Esports",
+                  image: "/Furia.png",
+                  link: "https://furiapp-connect.vercel.app/",
                 },
                 {
                   id: 2,
