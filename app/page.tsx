@@ -72,10 +72,17 @@ export default function Home() {
             </Link>
           </nav>
           <div className="hidden sm:block">
-            <Button className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] hover:opacity-90 text-white shadow-lg shadow-[#FF5500]/20 rounded-full px-6">
-              Falar no WhatsApp
-              <MessageCircle className="ml-2 h-4 w-4" />
-            </Button>
+            <a
+              href="https://api.whatsapp.com/send?phone=5541991820670&text=Olá!%20Gostaria%20de%20saber%20mais%20sobre%20os%20serviços%20da%20Astroya."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block"
+            >
+              <Button className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] hover:opacity-90 text-white shadow-lg shadow-[#FF5500]/20 rounded-full px-6">
+                Falar no WhatsApp
+                <MessageCircle className="ml-2 h-4 w-4" />
+              </Button>
+            </a>
           </div>
         </div>
       </header>
@@ -111,14 +118,20 @@ export default function Home() {
                     Ver Planos
                     <ChevronRight className="ml-2 h-5 w-5" />
                   </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full sm:w-auto border-[#9200BE] text-white hover:bg-[#9200BE]/10 px-8 py-7 rounded-full text-lg backdrop-blur-sm bg-white/5"
-                    onClick={() => setModalOpen(true)}
+                  <a
+                    href="https://api.whatsapp.com/send?phone=5541991820670&text=Olá!%20Gostaria%20de%20agendar%20uma%20consultoria%20gratuita%20com%20a%20Astroya."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto"
                   >
-                    Agende uma Consultoria Gratuita
-                    <MessageCircle className="ml-2 h-5 w-5" />
-                  </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full sm:w-auto border-[#9200BE] text-white hover:bg-[#9200BE]/10 px-8 py-7 rounded-full text-lg backdrop-blur-sm bg-white/5"
+                    >
+                      Agende uma Consultoria Gratuita
+                      <MessageCircle className="ml-2 h-5 w-5" />
+                    </Button>
+                  </a>
                 </div>
                 {/*<div className="flex items-center gap-6 pt-4">
                   <div className="flex -space-x-3">
@@ -276,34 +289,71 @@ export default function Home() {
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map((item) => (
-                <div key={item} className="group relative overflow-hidden rounded-xl">
+              {[
+                {
+                  id: 1,
+                  title: "Studoio Armon",
+                  type: "Landing Page",
+                  description: "Landing page para empresa de design",
+                  image: "/StudioArmon.png",
+                  link: "https://kzmn7tnxcdtge8v6ktwq.lite.vusercontent.net/",
+                },
+                {
+                  id: 2,
+                  title: "Verda",
+                  type: "Landing Page",
+                  description: "Landing page para empresa de Design biofílico",
+                  image: "/Verda.png",
+                  link: "https://kzmg7rfdvhhixe21xxtc.lite.vusercontent.net/",
+                },
+                {
+                  id: 3,
+                  title: "HypeLink",
+                  type: "Landing Page",
+                  description: "Landing page para agencia de influenciadores",
+                  image: "/HypeLink.png",
+                  link: "https://kzmo3v5zmtzh61ugivcm.lite.vusercontent.net/",
+                },
+              ].map((item) => (
+                <div
+                  key={item.id}
+                  className={`group relative overflow-hidden rounded-xl
+                    ${item.id === 2 ? "scale-105 z-10 shadow-2xl" : ""}
+                    transition-transform duration-300`}
+                >
                   <div className="absolute -inset-0.5 bg-gradient-to-br from-[#9200BE] to-[#FF5500] opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
                   <div className="relative bg-zinc-900 rounded-xl overflow-hidden">
                     <Image
-                      src={`/placeholder.svg?height=300&width=500&text=Projeto+${item}`}
-                      alt={`Projeto ${item}`}
+                      src={item.image}
+                      alt={item.title}
                       width={500}
                       height={300}
-                      className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-110"
+                      className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale group-hover:grayscale-0"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-6 transform translate-y-4 group-hover:translate-y-0">
                       <Badge className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] text-white border-0 w-fit mb-3 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-100">
-                        {item % 2 === 0 ? "E-commerce" : "Serviços"}
+                        {item.type}
                       </Badge>
                       <h3 className="text-xl font-bold mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-200">
-                        Projeto {item}
+                        {item.title}
                       </h3>
                       <p className="text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-300">
-                        Landing page para empresa de {item % 2 === 0 ? "tecnologia" : "serviços"}
+                        {item.description}
                       </p>
-                      <Button
-                        variant="link"
-                        className="p-0 text-[#FF5500] mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-400 w-fit"
+                      <a
+                        href={item.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-fit"
                       >
-                        Ver projeto
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
+                        <Button
+                          variant="link"
+                          className="p-0 text-[#FF5500] mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-400 w-fit"
+                        >
+                          Ver projeto
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -596,13 +646,20 @@ export default function Home() {
             </div>
             <div className="mt-12 text-center">
               <p className="text-zinc-400 mb-6">Não tem certeza de qual plano escolher? Fale com um especialista.</p>
-              <Button
-                variant="outline"
-                className="border-[#9200BE] text-[#9200BE] hover:bg-[#9200BE]/10 rounded-full px-6"
+              <a
+                href="https://api.whatsapp.com/send?phone=5541991820670&text=Olá!%20Gostaria%20de%20agendar%20uma%20consultoria%20gratuita%20com%20a%20Astroya."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block"
               >
-                Consultoria Gratuita
-                <Users className="ml-2 h-4 w-4" />
-              </Button>
+                <Button
+                  variant="outline"
+                  className="border-[#9200BE] text-[#9200BE] hover:bg-[#9200BE]/10 rounded-full px-6"
+                >
+                  Consultoria Gratuita
+                  <Users className="ml-2 h-4 w-4" />
+                </Button>
+              </a>
             </div>
           </div>
         </section>
@@ -870,10 +927,17 @@ export default function Home() {
               </div>
               <div className="mt-12 text-center">
                 <p className="text-zinc-400 mb-6">Ainda tem dúvidas? Entre em contato conosco.</p>
-                <Button className="bg-white/10 hover:bg-white/20 text-white rounded-full px-6 backdrop-blur-sm">
-                  Fale Conosco
-                  <MessageCircle className="ml-2 h-4 w-4" />
-                </Button>
+                <a
+                  href="https://api.whatsapp.com/send?phone=5541991820670&text=Olá!%20Tenho%20dúvidas%20sobre%20os%20serviços%20da%20Astroya."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block"
+                >
+                  <Button className="bg-white/10 hover:bg-white/20 text-white rounded-full px-6 backdrop-blur-sm">
+                    Fale Conosco
+                    <MessageCircle className="ml-2 h-4 w-4" />
+                  </Button>
+                </a>
               </div>
             </div>
           </div>
@@ -899,10 +963,17 @@ export default function Home() {
                   page profissional.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <Button className="w-full sm:w-auto bg-gradient-to-r from-[#9200BE] to-[#FF5500] hover:opacity-90 text-white px-8 py-7 rounded-full text-lg shadow-xl shadow-[#FF5500]/20 transition-all duration-300 hover:scale-105">
-                    Quero minha landing page
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
+                  <a
+                    href="https://api.whatsapp.com/send?phone=5541991820670&text=Olá!%20Quero%20uma%20landing%20page%20profissional%20com%20a%20Astroya."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto"
+                  >
+                    <Button className="w-full sm:w-auto bg-gradient-to-r from-[#9200BE] to-[#FF5500] hover:opacity-90 text-white px-8 py-7 rounded-full text-lg shadow-xl shadow-[#FF5500]/20 transition-all duration-300 hover:scale-105">
+                      Quero minha landing page
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </a>
                 </div>
                 <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-8">
                   <div className="flex items-center">
@@ -923,7 +994,7 @@ export default function Home() {
           </div>
         </section>
       </main>
-            {/* Consultoria Modal */}
+      {/* Consultoria Modal */}
       <ConsultoriaModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
 
       {/* Footer */}
@@ -1075,7 +1146,7 @@ export default function Home() {
                   >
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                   </svg>
-                  +55 (41) 99999-9999
+                  +55 (41) 99182-0670
                 </li>
                 <li className="flex items-center text-zinc-400">
                   <svg
@@ -1124,10 +1195,17 @@ export default function Home() {
       {/* WhatsApp Fixo */}
       <div className="fixed bottom-6 right-6 z-50 group">
         <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#9200BE] to-[#FF5500] blur-md opacity-0 group-hover:opacity-70 transition-opacity duration-300"></div>
-        <Button className="relative w-16 h-16 rounded-full bg-gradient-to-r from-[#9200BE] to-[#FF5500] hover:opacity-90 flex items-center justify-center shadow-lg shadow-[#FF5500]/20">
-          <MessageCircle className="h-7 w-7" />
-          <span className="sr-only">WhatsApp</span>
-        </Button>
+        <a
+          href="https://api.whatsapp.com/send?phone=5541991820670&text=Olá!%20Gostaria%20de%20saber%20mais%20sobre%20os%20serviços%20da%20Astroya."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block"
+        >
+          <Button className="relative w-16 h-16 rounded-full bg-gradient-to-r from-[#9200BE] to-[#FF5500] hover:opacity-90 flex items-center justify-center shadow-lg shadow-[#FF5500]/20">
+            <MessageCircle className="h-7 w-7" />
+            <span className="sr-only">WhatsApp</span>
+          </Button>
+        </a>
       </div>
     </div>
   )
