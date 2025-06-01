@@ -293,7 +293,7 @@ export default function Home() {
                 {/* Glow laranja atrás do Mac */}
                 <div className="absolute inset-0 z-0 rounded-full bg-[#FF5500] opacity-30 blur-3xl pointer-events-none"></div>
                 <Image
-                  src="/Mac.png"
+                  src="/Mac.PNG"
                   alt="Macbook"
                   fill
                   className="object-contain relative z-10"
