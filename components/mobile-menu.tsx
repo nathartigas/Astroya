@@ -41,7 +41,7 @@ export function MobileMenu({ links, activeSection, onClose }: MobileMenuProps) {
               href={link.href}
               className={cn(
                 "text-2xl font-bold transition-colors",
-                activeSection === link.id ? "text-[#FF0066]" : "text-zinc-400",
+                activeSection === link.id ? "text-[#FF5500]" : "text-zinc-400",
               )}
               onClick={onClose}
             >
@@ -56,8 +56,13 @@ export function MobileMenu({ links, activeSection, onClose }: MobileMenuProps) {
           transition={{ duration: 0.3, delay: links.length * 0.05 }}
           className="mt-8 pt-8 border-t border-zinc-800 w-32 flex justify-center"
         >
-          <Link href="#contact" className="rounded-full bg-[#FF0066] px-6 py-3 text-white" onClick={onClose}>
-            Contato
+          <Link
+            href="#contact"
+            onClick={onClose}
+            className="relative rounded-full px-6 py-3 text-white overflow-hidden group bg-gradient-to-br from-[#FF5500]/80 to-[#9200BE]"
+          >
+            <span className="relative z-10">Contato</span>
+            <span className="pointer-events-none absolute -inset-px rounded-2xl bg-gradient-to-br from-[#FF5500]/50 to-[#9200BE] opacity-0 blur transition-all duration-500 group-hover:opacity-100"></span>
           </Link>
         </motion.div>
       </div>

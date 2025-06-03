@@ -102,7 +102,4 @@ html {
 }
 
 /* Use viewport height for mobile */
-.min-h-[100vh] {
-  min-height: 100vh; /* fallback */
-  min-height: calc(var(--vh, 1vh) * 100);
-}
+/* Use Tailwind's min-h-[100vh] utility in your HTML or JSX instead of defining it here */

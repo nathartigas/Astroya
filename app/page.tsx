@@ -22,6 +22,7 @@ import {
   Sparkles,
   Heart,
   Check,
+  X,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -34,12 +35,12 @@ import { MagneticButton as MagneticButtonComponent } from "@/components/magnetic
 import { ScrollProgress } from "@/components/scroll-progress"
 import { StatsCounter } from "@/components/stats-counter"
 import { CaseStudyCard as CaseStudyCardComponent } from "@/components/case-study-card"
-import { TalentCard as TalentCardComponent } from "@/components/talent-card"
 import { MobileMenu } from "@/components/mobile-menu"
 import { RotatingText } from "@/components/rotating-text"
 import { GlitchText } from "@/components/glitch-text"
 import { MouseFollower } from "@/components/mouse-follower"
 import { TestimonialCarousel } from "@/components/testimonial-carousel"
+
 
 export default function Home() {
   const isMobile = useMobile()
@@ -57,22 +58,20 @@ export default function Home() {
   const talentsRef = useRef<HTMLDivElement>(null)
   const casesRef = useRef<HTMLDivElement>(null)
   const statsRef = useRef<HTMLDivElement>(null)
-  const contactRef = useRef<HTMLDivElement>(null)
+  const plansRef = useRef<HTMLDivElement>(null)
 
   const { scrollY } = useScroll()
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setScrolled(latest > 50)
 
-    // Determine active section based on scroll position
     const sections = [
       { id: "home", ref: null, top: 0 },
       { id: "about", ref: aboutRef },
       { id: "services", ref: servicesRef },
-      { id: "talents", ref: talentsRef },
       { id: "cases", ref: casesRef },
       { id: "stats", ref: statsRef },
-      { id: "contact", ref: contactRef },
+      { id: "plans", ref: plansRef },
     ]
 
     for (let i = sections.length - 1; i >= 0; i--) {
@@ -80,7 +79,8 @@ export default function Home() {
       if (!section.ref) continue
 
       const rect = section.ref.current?.getBoundingClientRect()
-      if (rect && rect.top <= 200) {
+      // Ajuste aqui: considere a seção ativa se ela está visível na tela
+      if (rect && rect.top <= 120 && rect.bottom > 120) {
         setActiveSection(section.id)
         break
       }
@@ -105,9 +105,8 @@ export default function Home() {
     { href: "#", label: "Home", id: "home" },
     { href: "#about", label: "Sobre", id: "about" },
     { href: "#services", label: "Serviços", id: "services" },
-    { href: "#talents", label: "Talentos", id: "talents" },
     { href: "#cases", label: "Cases", id: "cases" },
-    { href: "#contact", label: "Contato", id: "contact" },
+    { href: "#plans", label: "Planos", id: "plans" },
   ]
 
   return (
@@ -123,23 +122,23 @@ export default function Home() {
         )}
       >
         <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-8">
-          
 
-        <motion.div
-  initial={{ opacity: 0, x: -20 }}
-  animate={{ opacity: 1, x: 0 }}
-  transition={{ duration: 0.5 }}
->
-  <Link href="/" className="group relative flex items-center">
-    <Image
-      src="/Logo_A_Foguete.svg"
-      alt="Astroya logo"
-      width={60}
-      height={30}
-      className="transition-all duration-300 group-hover:opacity-80"
-    />
-  </Link>
-</motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Link href="/" className="group relative flex items-center">
+              <Image
+                src="/Logo_A_Foguete.svg"
+                alt="Astroya logo"
+                width={60}
+                height={30}
+                className="transition-all duration-300 group-hover:opacity-80"
+              />
+            </Link>
+          </motion.div>
 
           <nav className="hidden md:flex items-center space-x-8">
             {navLinks.map((link, index) => (
@@ -175,7 +174,9 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.5 }}
               className="hidden md:block"
             >
-              <GlowingButton>Fale Conosco!</GlowingButton>
+              <GlowingButton className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] hover:from-[#FF5500] hover:to-[#9200BE]">
+                Fale Conosco!
+              </GlowingButton>
             </motion.div>
 
             <motion.button
@@ -200,159 +201,306 @@ export default function Home() {
 
       <main className="relative">
       </main>
-        {/* Hero Section */}
-        <motion.section
-          style={{ opacity: heroOpacity, scale: heroScale, y: heroY }}
-          className="relative flex min-h-[100vh] items-center justify-center overflow-hidden py-20 md:py-0"
-        >
-          <HeroGradient />
-          <ParticleCanvas />
+      {/* Hero Section */}
+      <motion.section
+        style={{ opacity: heroOpacity, scale: heroScale, y: heroY }}
+        className="relative flex min-h-[100vh] items-center justify-center overflow-hidden py-20 md:py-0"
+      >
+        <HeroGradient />
+        <ParticleCanvas />
 
-          <div className="absolute inset-0 z-0">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,0,102,0.1),transparent_70%)]"></div>
-          </div>
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,0,102,0.1),transparent_70%)]"></div>
+        </div>
 
-          <div className="container mx-auto px-4 md:px-8 relative z-10 grid gap-8 py-16 md:py-32 md:grid-cols-2 md:gap-12">
-            {/* Coluna de texto */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="flex flex-col justify-center items-center md:items-start space-y-6 md:space-y-8 text-center md:text-left"
-            >
-              <div className="space-y-4 md:space-y-6 w-full flex flex-col items-center md:items-start">
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.5 }}
-                  className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-3 py-1 md:px-4 md:py-1.5 text-xs md:text-sm backdrop-blur-sm"
-                >
-                  <span className="relative flex h-2 w-2 mr-1 md:mr-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#7CFC00] opacity-75"></span>
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-[#90EE90]"></span>
-                  </span>
-                  Desenvolvimento FullStack.
-                </motion.div>
-
-                <img
-                  src="/LOGOINICIAL.svg"
-                  alt="Descrição da imagem"
-                  className="w-full max-w-[300px] md:max-w-[400px] h-auto object-contain mx-auto md:mx-0"
-                />
-
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.8 }}
-                  className="text-base md:text-xl text-zinc-400"
-                >
-                  Impulsionamos o seu negócio com soluções digitais inovadoras e personalizadas com exclusividade.
-                  <RotatingText
-                    words={["A gente PILOTA,", "VOCÊ decola!"]}
-                    className="ml-2 text-white font-medium"
-                  />
-                </motion.p>
-              </div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 1 }}
-                className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 w-full items-center md:items-start"
-              >
-                <MagneticButtonComponent className="bg-[#FF5500] hover:bg-[#9200BE] text-base md:text-lg h-12 md:h-14 px-6 md:px-8 w-full sm:w-auto">
-                  <span>Quero decolar!</span>
-                  <Sparkles className="ml-2 h-4 w-4 md:h-5 md:w-5" />
-                </MagneticButtonComponent>
-
-                <Button
-                  className="outline group border-[#ffffff] bg-black hover:bg-[#9200BE]/10 text-base md:text-lg h-12 md:h-14 px-6 md:px-8 w-full sm:w-auto transition-all duration-300"
-                >
-                  <span>Consultoria grátis</span>
-                  <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5 transition-transform duration-300 group-hover:translate-x-1" />
-                </Button>
-              </motion.div>
-
+        <div className="container mx-auto px-4 md:px-8 relative z-10 grid gap-8 py-16 md:py-32 md:grid-cols-2 md:gap-12">
+          {/* Coluna de texto */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="flex flex-col justify-center items-center md:items-start space-y-6 md:space-y-8 text-center md:text-left"
+          >
+            <div className="space-y-4 md:space-y-6 w-full flex flex-col items-center md:items-start">
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 1.2 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-3 py-1 md:px-4 md:py-1.5 text-xs md:text-sm backdrop-blur-sm"
               >
-                {/* Removido: className="flex items-center space-x-4 md:space-x-8 text-zinc-500 justify-center md:justify-start" */}
+                <span className="relative flex h-2 w-2 mr-1 md:mr-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#7CFC00] opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[#90EE90]"></span>
+                </span>
+                Desenvolvimento FullStack.
               </motion.div>
-            </motion.div>
 
-            {/* Coluna da imagem do Mac */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.5, type: "spring" }}
-              className="relative flex items-center justify-center mt-8 md:mt-0"
-            >
-              <div className="relative h-[220px] w-[220px] xs:h-[260px] xs:w-[260px] sm:h-[300px] sm:w-[300px] md:h-[400px] md:w-[400px] lg:h-[500px] lg:w-[500px] max-w-full flex items-center justify-center">
-                {/* Glow laranja atrás do Mac */}
-                <div className="absolute inset-0 z-0 rounded-full bg-[#FF5500] opacity-30 blur-3xl pointer-events-none"></div>
-                <Image
-                  src="/Mac.PNG"
-                  alt="Macbook"
-                  fill
-                  className="object-contain relative z-10"
-                  style={{ borderRadius: 0 }}
+              <img
+                src="/LOGOINICIAL.svg"
+                alt="Descrição da imagem"
+                className="w-full max-w-[300px] md:max-w-[400px] h-auto object-contain mx-auto md:mx-0"
+              />
+
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.8 }}
+                className="text-base md:text-xl text-zinc-400"
+              >
+                Impulsionamos o seu negócio com soluções digitais inovadoras e personalizadas com exclusividade.
+                <RotatingText
+                  words={["A gente PILOTA,", "VOCÊ decola!"]}
+                  className="ml-2 text-white font-medium"
                 />
-                <FloatingIcons />
-              </div>
-            </motion.div>
-          </div>
+              </motion.p>
+            </div>
 
-          <div className="absolute bottom-10 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center">
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 1.5, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" }}
-            >
-              <Link href="#about" className="flex flex-col items-center text-zinc-500 hover:text-white">
-                <span className="mb-2 text-xs">Role p/ baixo</span>
-                <ChevronDown className="h-5 w-5" />
-              </Link>
-            </motion.div>
-          </div>
-        </motion.section>
-
-        {/* About Section */}
-        <section id="about" ref={aboutRef} className="relative py-16 md:py-32 overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,0,102,0.05),transparent_70%)]"></div>
-
-          <div className="container mx-auto px-4 md:px-8 relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.7 }}
-              className="mx-auto mb-12 md:mb-16 max-w-3xl text-center"
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 1 }}
+              className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 w-full items-center md:items-start"
             >
-              <div className="mb-4 md:mb-6 inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-3 py-1 md:px-4 md:py-1.5 text-xs md:text-sm backdrop-blur-sm">
-                <Star className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4 text-[#FF5500]" />
-                Nossa missão
-              </div>
-              <h2 className="mb-6 md:mb-8 text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter">
-                Transformamos tecnologia em{" "}
-                <span className="relative">
-                  <span className="relative z-10 text-[#FF5500]">impacto real</span>
-                  <span className="absolute -bottom-1 left-0 z-0 h-3 w-full bg-[#FF0066]/20 blur-sm"></span>
-                </span>
-              </h2>
-              <p className="text-base md:text-xl text-zinc-400">
-                Na ASTROYA, acreditamos que tecnologia só faz sentido quando gera impacto. É por isso que criamos landing pages inteligentes, rápidas e focadas em conversão, ajudando sua marca a se destacar no digital.
+              <MagneticButtonComponent
+                className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] hover:from-[#FF5500] hover:to-[#9200BE] text-base md:text-lg h-12 md:h-14 px-6 md:px-8 w-full sm:w-auto transition-all duration-300"
+              >
+                <span>Quero decolar!</span>
+                <Sparkles className="ml-2 h-4 w-4 md:h-5 md:w-5" />
+              </MagneticButtonComponent>
 
-              </p>
+              <Button
+                className="outline group border-[#ffffff] bg-black hover:bg-[#9200BE]/10 text-base md:text-lg h-12 md:h-14 px-6 md:px-8 w-full sm:w-auto transition-all duration-300"
+              >
+                <span>Consultoria grátis</span>
+                <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5 transition-transform duration-300 group-hover:translate-x-1" />
+              </Button>
             </motion.div>
 
-            <div className="grid grid-cols-1 gap-6 md:gap-8 md:grid-cols-3">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 1.2 }}
+            >
+              {/* Removido: className="flex items-center space-x-4 md:space-x-8 text-zinc-500 justify-center md:justify-start" */}
+            </motion.div>
+          </motion.div>
+
+          {/* Coluna da imagem do Mac */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.5, type: "spring" }}
+            className="relative flex items-center justify-center mt-8 md:mt-0"
+          >
+            <div className="relative h-[300px] w-[300px] xs:h-[340px] xs:w-[340px] sm:h-[400px] sm:w-[400px] md:h-[500px] md:w-[500px] lg:h-[600px] lg:w-[600px] max-w-full flex items-center justify-center">
+              {/* Glow laranja atrás do Mac */}
+              <div className="absolute inset-0 z-0 rounded-full bg-[#FF5500] opacity-30 blur-3xl pointer-events-none"></div>
+              <Image
+                src="/Mac.PNG"
+                alt="Macbook"
+                fill
+                className="object-contain relative z-10"
+                style={{ borderRadius: 0 }}
+              />
+              <FloatingIcons />
+            </div>
+          </motion.div>
+        </div>
+
+        <div className="absolute bottom-10 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1.5, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" }}
+          >
+            <Link href="#about" className="flex flex-col items-center text-zinc-500 hover:text-white">
+              <span className="mb-2 text-xs">Role p/ baixo</span>
+              <ChevronDown className="h-5 w-5" />
+            </Link>
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* About Section */}
+      <section id="about" ref={aboutRef} className="relative py-16 md:py-32 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,0,102,0.05),transparent_70%)]"></div>
+
+        <div className="container mx-auto px-4 md:px-8 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7 }}
+            className="mx-auto mb-12 md:mb-16 max-w-3xl text-center"
+          >
+            <div className="mb-4 md:mb-6 inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-3 py-1 md:px-4 md:py-1.5 text-xs md:text-sm backdrop-blur-sm">
+              <Star className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4 text-[#FF5500]" />
+              Nossa missão
+            </div>
+            <h2 className="mb-6 md:mb-8 text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter">
+              Transformamos tecnologia em{" "}
+              <span className="relative">
+                <span className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] text-transparent bg-clip-text">impacto real</span>
+                <span className="absolute -bottom-1 left-0 z-0 h-3 w-full bg-[#FF0066]/20 blur-sm"></span>
+              </span>
+            </h2>
+            <p className="text-base md:text-xl text-zinc-400">
+              Na ASTROYA, acreditamos que tecnologia só faz sentido quando gera impacto. É por isso que criamos landing pages inteligentes, rápidas e focadas em conversão, ajudando sua marca a se destacar no digital.
+
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 gap-6 md:gap-8 md:grid-cols-3">
+            {[
+              {
+                title: "Autenticidade",
+                description:
+                  "Valorizamos conteúdo genuíno e relações transparentes que geram confiança e resultados duradouros.",
+                icon: (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-10 w-10 text-[#FF5500]"
+                  >
+                    <path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3" />
+                    <path d="M3 11v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H7v-2a2 2 0 0 0-4 0Z" />
+                    <path d="M5 18v2" />
+                    <path d="M19 18v2" />
+                  </svg>
+                ),
+                gradient: "from-[#FF0066]/20 to-purple-500/20",
+              },
+              {
+                title: "Inovação",
+                description:
+                  "Buscamos constantemente novas formas de criar impacto, utilizando tecnologia e criatividade para superar expectativas.",
+                icon: (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-10 w-10 text-[#FF5500]"
+                  >
+                    <path d="M12 2v8" />
+                    <path d="m4.93 10.93 1.41 1.41" />
+                    <path d="M2 18h2" />
+                    <path d="M20 18h2" />
+                    <path d="m19.07 10.93-1.41 1.41" />
+                    <path d="M22 22H2" />
+                    <path d="m16 6-4 4-4-4" />
+                    <path d="M16 18a4 4 0 0 0-8 0" />
+                  </svg>
+                ),
+                gradient: "from-purple-500/20 to-blue-500/20",
+              },
+              {
+                title: "Ética",
+                description:
+                  "Comprometidos com práticas responsáveis e transparentes, construindo um ecossistema digital mais saudável e sustentável.",
+                icon: (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-10 w-10 text-[#FF5500]"
+                  >
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+                    <path d="m9 12 2 2 4-4" />
+                  </svg>
+                ),
+                gradient: "from-blue-500/20 to-[#FF0066]/20",
+              },
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: isMobile ? 0 : 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{
+                  duration: isMobile ? 0.2 : 0.5,
+                  delay: isMobile ? 0 : index * 0.1,
+                }}
+                className="group relative"
+              >
+                <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-[#FF5500]/50 to-purple-500/50 opacity-0 blur transition-all duration-500 group-hover:opacity-100"></div>
+                <div className="relative flex flex-col h-full p-8 rounded-2xl bg-zinc-900/80 border border-zinc-800 backdrop-blur-sm transition-all duration-300 group-hover:border-[#FF5500]/30 group-hover:shadow-[0_0_25px_rgba(255,0,102,0.2)]">
+                  <div className="mb-6 rounded-xl bg-gradient-to-br p-[1px]">
+                    <div className={`rounded-xl bg-gradient-to-br ${item.gradient} p-4`}>{item.icon}</div>
+                  </div>
+                  <h3 className="mb-4 text-2xl font-bold">{item.title}</h3>
+                  <p className="text-zinc-400">{item.description}</p>
+                  <div className="mt-6 flex items-center text-[#FF5500]">
+                    <span className="text-sm font-medium">Saiba mais</span>
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Services Section */}
+      <section id="services" ref={servicesRef} className="relative py-16 md:py-32">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,0,102,0.05),transparent_70%)]"></div>
+
+        <div className="container mx-auto px-4 md:px-8 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7 }}
+            className="mx-auto mb-12 md:mb-16 max-w-3xl text-center"
+          >
+            <div className="mb-4 md:mb-6 inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-3 py-1 md:px-4 md:py-1.5 text-xs md:text-sm backdrop-blur-sm">
+              <Zap className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4 text-[#FF5500]" />O que oferecemos
+            </div>
+            <h2 className="mb-6 md:mb-8 text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter">
+              Nossos <span className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] text-transparent bg-clip-text">Serviços</span> exclusivos
+            </h2>
+            <p className="text-base md:text-xl text-zinc-400">
+              Soluções personalizadas para influenciadores e marcas que buscam resultados extraordinários e conexões
+              autênticas no mundo digital.
+            </p>
+          </motion.div>
+
+          <div className="grid gap-12 md:grid-cols-2">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.7 }}
+              className="space-y-8"
+            >
+              <div className="relative">
+                <div className="absolute -left-4 top-0 h-full w-1 bg-gradient-to-b from-[#FF5500] to-purple-500"></div>
+                <h3 className="text-2xl font-bold mb-6 pl-4">Para Influenciadores</h3>
+              </div>
+
               {[
                 {
-                  title: "Autenticidade",
+                  title: "Gestão de carreira e imagem",
                   description:
-                    "Valorizamos conteúdo genuíno e relações transparentes que geram confiança e resultados duradouros.",
+                    "Desenvolvemos estratégias personalizadas para potencializar sua presença digital e construir uma marca pessoal autêntica e lucrativa.",
                   icon: (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -364,20 +512,20 @@ export default function Home() {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="h-10 w-10 text-[#FF5500]"
+                      className="h-6 w-6"
                     >
-                      <path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3" />
-                      <path d="M3 11v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H7v-2a2 2 0 0 0-4 0Z" />
-                      <path d="M5 18v2" />
-                      <path d="M19 18v2" />
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
                   ),
-                  gradient: "from-[#FF0066]/20 to-purple-500/20",
+                  features: ["Planejamento estratégico", "Identidade visual", "Gestão de conteúdo"],
                 },
                 {
-                  title: "Inovação",
+                  title: "Conexão com marcas relevantes",
                   description:
-                    "Buscamos constantemente novas formas de criar impacto, utilizando tecnologia e criatividade para superar expectativas.",
+                    "Facilitamos parcerias estratégicas alinhadas com seus valores e público, garantindo colaborações autênticas e lucrativas.",
                   icon: (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -389,24 +537,17 @@ export default function Home() {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="h-10 w-10 text-[#FF5500]"
+                      className="h-6 w-6"
                     >
-                      <path d="M12 2v8" />
-                      <path d="m4.93 10.93 1.41 1.41" />
-                      <path d="M2 18h2" />
-                      <path d="M20 18h2" />
-                      <path d="m19.07 10.93-1.41 1.41" />
-                      <path d="M22 22H2" />
-                      <path d="m16 6-4 4-4-4" />
-                      <path d="M16 18a4 4 0 0 0-8 0" />
+                      <path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z" />
                     </svg>
                   ),
-                  gradient: "from-purple-500/20 to-blue-500/20",
+                  features: ["Matchmaking personalizado", "Negociação de contratos", "Gestão de relacionamentos"],
                 },
                 {
-                  title: "Ética",
+                  title: "Estratégias de crescimento",
                   description:
-                    "Comprometidos com práticas responsáveis e transparentes, construindo um ecossistema digital mais saudável e sustentável.",
+                    "Planos personalizados para expandir seu alcance e engajamento de forma sustentável, com foco em resultados mensuráveis e de longo prazo.",
                   icon: (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -418,13 +559,12 @@ export default function Home() {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="h-10 w-10 text-[#FF5500]"
+                      className="h-6 w-6"
                     >
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
-                      <path d="m9 12 2 2 4-4" />
+                      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                     </svg>
                   ),
-                  gradient: "from-blue-500/20 to-[#FF0066]/20",
+                  features: ["Análise de métricas", "Otimização de algoritmos", "Estratégias de monetização"],
                 },
               ].map((item, index) => (
                 <motion.div
@@ -436,732 +576,558 @@ export default function Home() {
                     duration: isMobile ? 0.2 : 0.5,
                     delay: isMobile ? 0 : index * 0.1,
                   }}
-                  className="group relative"
+                  className="group"
                 >
-                  <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-[#FF5500]/50 to-purple-500/50 opacity-0 blur transition-all duration-500 group-hover:opacity-100"></div>
-                  <div className="relative flex flex-col h-full p-8 rounded-2xl bg-zinc-900/80 border border-zinc-800 backdrop-blur-sm transition-all duration-300 group-hover:border-[#FF5500]/30 group-hover:shadow-[0_0_25px_rgba(255,0,102,0.2)]">
-                    <div className="mb-6 rounded-xl bg-gradient-to-br p-[1px]">
-                      <div className={`rounded-xl bg-gradient-to-br ${item.gradient} p-4`}>{item.icon}</div>
-                    </div>
-                    <h3 className="mb-4 text-2xl font-bold">{item.title}</h3>
-                    <p className="text-zinc-400">{item.description}</p>
-                    <div className="mt-6 flex items-center text-[#FF5500]">
-                      <span className="text-sm font-medium">Saiba mais</span>
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                    </div>
-                  </div>
+                  <Card className="overflow-hidden bg-zinc-900/50 border-zinc-800 transition-all duration-500 hover:border-[#FF0066]/30 hover:shadow-[0_0_25px_rgba(255,0,102,0.2)] hover:translate-y-[-5px]">
+                    <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-[#FF0066]/10 blur-3xl transition-all duration-700 group-hover:bg-[#FF0066]/20"></div>
+                    <CardContent className="p-8">
+                      <div className="flex flex-col space-y-4">
+                        <div className="flex items-start space-x-4">
+                          <div className="rounded-xl bg-gradient-to-br from-purple-500/20 to-[#FF5500]/20 p-3 text-[#FF5500]">
+                            {item.icon}
+                          </div>
+                          <div>
+                            <h4 className="text-xl font-bold mb-2">{item.title}</h4>
+                            <p className="text-zinc-400">{item.description}</p>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 border-t border-zinc-800 pt-4">
+                          <div className="flex flex-wrap gap-2">
+                            {item.features.map((feature, i) => (
+                              <span
+                                key={i}
+                                className="inline-flex items-center rounded-full bg-zinc-800/50 px-3 py-1 text-xs"
+                              >
+                                <span className="mr-1 h-1.5 w-1.5 rounded-full bg-[#FF5500]"></span>
+                                {feature}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </motion.div>
               ))}
-            </div>
-          </div>
-        </section>
+            </motion.div>
 
-        {/* Services Section */}
-        <section id="services" ref={servicesRef} className="relative py-16 md:py-32">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,0,102,0.05),transparent_70%)]"></div>
-
-          <div className="container mx-auto px-4 md:px-8 relative z-10">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.7 }}
-              className="mx-auto mb-12 md:mb-16 max-w-3xl text-center"
+              className="space-y-8"
             >
-              <div className="mb-4 md:mb-6 inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-3 py-1 md:px-4 md:py-1.5 text-xs md:text-sm backdrop-blur-sm">
-                <Zap className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4 text-[#FF5500]" />O que oferecemos
+              <div className="relative">
+                <div className="absolute -left-4 top-0 h-full w-1 bg-gradient-to-b from-purple-500 to-[#FF5500]"></div>
+                <h3 className="text-2xl font-bold mb-6 pl-4">Para Marcas</h3>
               </div>
-              <h2 className="mb-6 md:mb-8 text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter">
-                Nossos <span className="text-[#FF5500]">Serviços</span> exclusivos
-              </h2>
-              <p className="text-base md:text-xl text-zinc-400">
-                Soluções personalizadas para influenciadores e marcas que buscam resultados extraordinários e conexões
-                autênticas no mundo digital.
-              </p>
-            </motion.div>
 
-            <div className="grid gap-12 md:grid-cols-2">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.7 }}
-                className="space-y-8"
-              >
-                <div className="relative">
-                  <div className="absolute -left-4 top-0 h-full w-1 bg-gradient-to-b from-[#FF5500] to-purple-500"></div>
-                  <h3 className="text-2xl font-bold mb-6 pl-4">Para Influenciadores</h3>
-                </div>
-
-                {[
-                  {
-                    title: "Gestão de carreira e imagem",
-                    description:
-                      "Desenvolvemos estratégias personalizadas para potencializar sua presença digital e construir uma marca pessoal autêntica e lucrativa.",
-                    icon: (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-6 w-6"
-                      >
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                      </svg>
-                    ),
-                    features: ["Planejamento estratégico", "Identidade visual", "Gestão de conteúdo"],
-                  },
-                  {
-                    title: "Conexão com marcas relevantes",
-                    description:
-                      "Facilitamos parcerias estratégicas alinhadas com seus valores e público, garantindo colaborações autênticas e lucrativas.",
-                    icon: (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-6 w-6"
-                      >
-                        <path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z" />
-                      </svg>
-                    ),
-                    features: ["Matchmaking personalizado", "Negociação de contratos", "Gestão de relacionamentos"],
-                  },
-                  {
-                    title: "Estratégias de crescimento",
-                    description:
-                      "Planos personalizados para expandir seu alcance e engajamento de forma sustentável, com foco em resultados mensuráveis e de longo prazo.",
-                    icon: (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-6 w-6"
-                      >
-                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                      </svg>
-                    ),
-                    features: ["Análise de métricas", "Otimização de algoritmos", "Estratégias de monetização"],
-                  },
-                ].map((item, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: isMobile ? 0 : 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    transition={{
-                      duration: isMobile ? 0.2 : 0.5,
-                      delay: isMobile ? 0 : index * 0.1,
-                    }}
-                    className="group"
-                  >
-                    <Card className="overflow-hidden bg-zinc-900/50 border-zinc-800 transition-all duration-500 hover:border-[#FF0066]/30 hover:shadow-[0_0_25px_rgba(255,0,102,0.2)] hover:translate-y-[-5px]">
-                      <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-[#FF0066]/10 blur-3xl transition-all duration-700 group-hover:bg-[#FF0066]/20"></div>
-                      <CardContent className="p-8">
-                        <div className="flex flex-col space-y-4">
-                          <div className="flex items-start space-x-4">
-                            <div className="rounded-xl bg-gradient-to-br from-purple-500/20 to-[#FF5500]/20 p-3 text-[#FF5500]">
-                              {item.icon}
-                            </div>
-                            <div>
-                              <h4 className="text-xl font-bold mb-2">{item.title}</h4>
-                              <p className="text-zinc-400">{item.description}</p>
-                            </div>
-                          </div>
-
-                          <div className="mt-4 border-t border-zinc-800 pt-4">
-                            <div className="flex flex-wrap gap-2">
-                              {item.features.map((feature, i) => (
-                                <span
-                                  key={i}
-                                  className="inline-flex items-center rounded-full bg-zinc-800/50 px-3 py-1 text-xs"
-                                >
-                                  <span className="mr-1 h-1.5 w-1.5 rounded-full bg-[#FF5500]"></span>
-                                  {feature}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.7 }}
-                className="space-y-8"
-              >
-                <div className="relative">
-                  <div className="absolute -left-4 top-0 h-full w-1 bg-gradient-to-b from-purple-500 to-[#FF5500]"></div>
-                  <h3 className="text-2xl font-bold mb-6 pl-4">Para Marcas</h3>
-                </div>
-
-                {[
-                  {
-                    title: "Curadoria de talentos",
-                    description:
-                      "Selecionamos influenciadores alinhados com o propósito e valores da sua marca, garantindo autenticidade e relevância para seu público-alvo.",
-                    icon: (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-6 w-6"
-                      >
-                        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-                      </svg>
-                    ),
-                    features: [
-                      "Análise de compatibilidade",
-                      "Verificação de autenticidade",
-                      "Avaliação de performance",
-                    ],
-                  },
-                  {
-                    title: "Campanhas de influência",
-                    description:
-                      "Desenvolvemos estratégias criativas e eficazes para maximizar o impacto da sua marca através de narrativas autênticas e envolventes.",
-                    icon: (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-6 w-6"
-                      >
-                        <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z" />
-                        <path d="M10 2c1 .5 2 2 2 5" />
-                      </svg>
-                    ),
-                    features: ["Planejamento estratégico", "Produção criativa", "Distribuição multicanal"],
-                  },
-                  {
-                    title: "Gestão de contratos e performance",
-                    description:
-                      "Administramos todos os aspectos legais e acompanhamos os resultados das campanhas, garantindo transparência e maximização do ROI.",
-                    icon: (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-6 w-6"
-                      >
-                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-                        <polyline points="14 2 14 8 20 8" />
-                        <path d="M16 13H8" />
-                        <path d="M16 17H8" />
-                        <path d="M10 9H8" />
-                      </svg>
-                    ),
-                    features: ["Relatórios detalhados", "Análise de ROI", "Otimização contínua"],
-                  },
-                ].map((item, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: isMobile ? 0 : 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    transition={{
-                      duration: isMobile ? 0.2 : 0.5,
-                      delay: isMobile ? 0 : index * 0.1,
-                    }}
-                    className="group"
-                  >
-                    <Card className="overflow-hidden bg-zinc-900/50 border-zinc-800 transition-all duration-500 hover:border-[#FF0066]/30 hover:shadow-[0_0_25px_rgba(255,0,102,0.2)] hover:translate-y-[-5px]">
-                      <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-[#FF0066]/10 blur-3xl transition-all duration-700 group-hover:bg-[#FF0066]/20"></div>
-                      <CardContent className="p-8">
-                        <div className="flex flex-col space-y-4">
-                          <div className="flex items-start space-x-4">
-                            <div className="rounded-xl bg-gradient-to-br from-purple-500/20 to-[#FF5500]/20 p-3 text-[#FF5500]">
-                              {item.icon}
-                            </div>
-                            <div>
-                              <h4 className="text-xl font-bold mb-2">{item.title}</h4>
-                              <p className="text-zinc-400">{item.description}</p>
-                            </div>
-                          </div>
-
-                          <div className="mt-4 border-t border-zinc-800 pt-4">
-                            <div className="flex flex-wrap gap-2">
-                              {item.features.map((feature, i) => (
-                                <span
-                                  key={i}
-                                  className="inline-flex items-center rounded-full bg-zinc-800/50 px-3 py-1 text-xs"
-                                >
-                                  <span className="mr-1 h-1.5 w-1.5 rounded-full bg-[#FF5500]"></span>
-                                  {feature}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </div>
-          </div>
-        </section>
-
-        {/* Stats Section */}
-        <section id="stats" ref={statsRef} className="relative py-24 overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,0,102,0.1),transparent_70%)]"></div>
-
-          <div className="container mx-auto px-4 md:px-8 relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.7 }}
-              className="mx-auto mb-16 max-w-3xl text-center"
-            >
-              <h2 className="mb-8 text-4xl font-bold tracking-tighter sm:text-5xl">
-                Números que <span className="text-[#FF5500]">impressionam</span>
-              </h2>
-              <p className="text-xl text-zinc-400">
-                Resultados concretos que demonstram nossa capacidade de transformar influência em impacto mensurável.
-              </p>
-            </motion.div>
-
-            <div className="grid gap-8 md:grid-cols-4">
               {[
-                { value: 500, label: "Influenciadores", icon: Users, suffix: "+" },
-                { value: 200, label: "Marcas parceiras", icon: Award, suffix: "+" },
-                { value: 150, label: "Milhões de alcance", icon: Globe, suffix: "M" },
-                { value: 350, label: "Crescimento médio", icon: TrendingUp, suffix: "%" },
-              ].map((stat, index) => (
+                {
+                  title: "Curadoria de talentos",
+                  description:
+                    "Selecionamos influenciadores alinhados com o propósito e valores da sua marca, garantindo autenticidade e relevância para seu público-alvo.",
+                  icon: (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-6 w-6"
+                    >
+                      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                    </svg>
+                  ),
+                  features: [
+                    "Análise de compatibilidade",
+                    "Verificação de autenticidade",
+                    "Avaliação de performance",
+                  ],
+                },
+                {
+                  title: "Campanhas de influência",
+                  description:
+                    "Desenvolvemos estratégias criativas e eficazes para maximizar o impacto da sua marca através de narrativas autênticas e envolventes.",
+                  icon: (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-6 w-6"
+                    >
+                      <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z" />
+                      <path d="M10 2c1 .5 2 2 2 5" />
+                    </svg>
+                  ),
+                  features: ["Planejamento estratégico", "Produção criativa", "Distribuição multicanal"],
+                },
+                {
+                  title: "Gestão de contratos e performance",
+                  description:
+                    "Administramos todos os aspectos legais e acompanhamos os resultados das campanhas, garantindo transparência e maximização do ROI.",
+                  icon: (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-6 w-6"
+                    >
+                      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <path d="M16 13H8" />
+                      <path d="M16 17H8" />
+                      <path d="M10 9H8" />
+                    </svg>
+                  ),
+                  features: ["Relatórios detalhados", "Análise de ROI", "Otimização contínua"],
+                },
+              ].map((item, index) => (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: isMobile ? 0 : 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="group relative"
+                  transition={{
+                    duration: isMobile ? 0.2 : 0.5,
+                    delay: isMobile ? 0 : index * 0.1,
+                  }}
+                  className="group"
                 >
-                  <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-[#FF0066]/50 to-purple-500/50 opacity-0 blur transition-all duration-500 group-hover:opacity-100"></div>
-                  <div className="relative flex flex-col items-center rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 text-center backdrop-blur-sm transition-all duration-300 group-hover:border-[#FF0066]/30">
-                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#FF0066]/10">
-                      <stat.icon className="h-8 w-8 text-[#FF0066]" />
-                    </div>
-                    <StatsCounter value={stat.value} suffix={stat.suffix} className="text-4xl font-bold" />
-                    <p className="mt-2 text-zinc-400">{stat.label}</p>
-                  </div>
+                  <Card className="overflow-hidden bg-zinc-900/50 border-zinc-800 transition-all duration-500 hover:border-[#FF0066]/30 hover:shadow-[0_0_25px_rgba(255,0,102,0.2)] hover:translate-y-[-5px]">
+                    <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-[#FF0066]/10 blur-3xl transition-all duration-700 group-hover:bg-[#FF0066]/20"></div>
+                    <CardContent className="p-8">
+                      <div className="flex flex-col space-y-4">
+                        <div className="flex items-start space-x-4">
+                          <div className="rounded-xl bg-gradient-to-br from-purple-500/20 to-[#FF5500]/20 p-3 text-[#FF5500]">
+                            {item.icon}
+                          </div>
+                          <div>
+                            <h4 className="text-xl font-bold mb-2">{item.title}</h4>
+                            <p className="text-zinc-400">{item.description}</p>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 border-t border-zinc-800 pt-4">
+                          <div className="flex flex-wrap gap-2">
+                            {item.features.map((feature, i) => (
+                              <span
+                                key={i}
+                                className="inline-flex items-center rounded-full bg-zinc-800/50 px-3 py-1 text-xs"
+                              >
+                                <span className="mr-1 h-1.5 w-1.5 rounded-full bg-[#FF5500]"></span>
+                                {feature}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Talents Section */}
-<section id="talents" ref={talentsRef} className="relative py-32 overflow-hidden">
-  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,0,102,0.05),transparent_70%)]"></div>
+      {/* Stats Section */}
+      <section id="stats" ref={statsRef} className="relative py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,0,102,0.1),transparent_70%)]"></div>
 
-  <div className="container mx-auto px-4 md:px-8 relative z-10">
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.7 }}
-      className="mx-auto mb-16 max-w-3xl text-center"
-    >
-      <div className="mb-6 inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-4 py-1.5 text-sm backdrop-blur-sm">
-        <Star className="mr-2 h-4 w-4 text-[#FF5500]" />
-        Nosso ecossistema
-      </div>
-      <h2 className="mb-8 text-4xl font-bold tracking-tighter sm:text-5xl">
-        Nossos <span className="text-[#FF5500]">Talentos</span> extraordinários
-      </h2>
-      <p className="text-xl text-zinc-400 mb-12">
-        Conheça quem está por trás da ASTROYA:
-      </p>
-
-      {/* Novo texto breve adicional */}
-      <p className="text-lg text-zinc-300 max-w-xl mx-auto mb-12">
-        Estes talentos representam o melhor do marketing digital, conectando a tecnologia e o seu negócio com autenticidade e impacto.
-      </p>
-    </motion.div>
-
-    {/* Centralizando os dois cards com grid de 2 colunas e justificando ao centro */}
-    <div className="grid grid-cols-1 md:grid-cols-2 justify-center gap-6 mb-16 max-w-md mx-auto">
-      {[
-        { name: "Nathalia Artigas", niche: "UX/UI Designer & Front-end Developer", followers: "1.2M", engagement: "5.8%" },
-        { name: "Lorenzo Laskawski", niche: "Front-end Developer", followers: "850K", engagement: "4.2%" },
-      ].map((talent, index) => (
-        <motion.div
-          key={index}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5, delay: index * 0.05 }}
-          className="relative flex justify-center"
-        >
-          {/* Luz atrás do círculo */}
-          <div
-            className={`
-              absolute inset-0 z-0 rounded-full blur-2xl pointer-events-none
-              ${talent.name === "Nathalia Artigas" ? "bg-purple-600/40" : ""}
-              ${talent.name === "Lorenzo Laskawski" ? "bg-[#FF5500]/40" : ""}
-            `}
-            style={{
-              // Ajuste para garantir que o glow fique atrás do círculo
-              filter: "blur(32px)",
-            }}
-          />
-          <TalentCardComponent
-            talent={talent}
-            className="!h-28 !w-28 sm:!h-32 sm:!w-32 md:!h-40 md:!w-40"
-            nameClassName="!text-lg sm:!text-xl md:!text-2xl"
-            descClassName="!text-sm sm:!text-base md:!text-lg"
-          />
-        </motion.div>
-      ))}
-    </div>
-
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.7 }}
-      className="flex justify-center"
-    >
-      <GlowingButton size="lg">Quero ser parte da ASTROYA</GlowingButton>
-    </motion.div>
-  </div>
-</section>
-
-        {/* Cases Section */}
-<section id="cases" ref={casesRef} className="relative py-32">
-  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(255,0,102,0.05),transparent_70%)]"></div>
-
-  <div className="container mx-auto px-4 md:px-8 relative z-10">
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.7 }}
-      className="mx-auto mb-16 max-w-3xl text-center"
-    >
-      <div className="mb-6 inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-4 py-1.5 text-sm backdrop-blur-sm">
-        <Award className="mr-2 h-4 w-4 text-[#FF5500]" />
-        Nossos sucessos
-      </div>
-      <h2 className="mb-8 text-4xl font-bold tracking-tighter sm:text-5xl">
-        Resultados que <span className="text-[#FF5500]">falam por si</span>
-      </h2>
-      <p className="text-xl text-zinc-400">
-        Conheça algumas das nossas campanhas de maior sucesso e o impacto que geramos para marcas e influenciadores.
-      </p>
-    </motion.div>
-
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8 max-w-6xl mx-auto">
-      {[
-        {
-          title: "FuriaApp",
-          description: "Lançamento de produto tecnológico com influenciadores do setor tech e lifestyle.",
-          image: "/placeholder.svg?height=400&width=600&text=TechFuture",
-          stats: [
-            { label: "Alcance", value: "+150%" },
-            { label: "Conversão", value: "32%" },
-            { label: "ROI", value: "420%" },
-          ],
-          tags: ["Tech", "Lançamento", "B2C"],
-        },
-        {
-          title: "Dra.KalyZanona",
-          description:
-            "Estratégia omnichannel para nova linha de produtos fitness com micro e macro influenciadores.",
-          image: "/placeholder.svg?height=400&width=600&text=FitLife",
-          stats: [
-            { label: "Novos seguidores", value: "200K" },
-            { label: "Conversão", value: "45%" },
-            { label: "Vendas", value: "+320%" },
-          ],
-          tags: ["Fitness", "Lifestyle", "E-commerce"],
-        },
-        {
-          title: "Advogados",
-          description:
-            "Conscientização sobre moda sustentável com influenciadores alinhados à causa ambiental.",
-          image: "/placeholder.svg?height=400&width=600&text=EcoStyle",
-          stats: [
-            { label: "Engajamento", value: "87%" },
-            { label: "Influenciadores", value: "5" },
-            { label: "Impacto social", value: "Alto" },
-          ],
-          tags: ["Sustentabilidade", "Moda", "Causa"],
-        },
-      ].map((item, index) => (
-        <motion.div
-          key={index}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5, delay: index * 0.1 }}
-        >
-          <CaseStudyCardComponent caseStudy={item} />
-        </motion.div>
-      ))}
-    </div>
-
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.7 }}
-      className="mt-16 flex justify-center"
-    >
-      <Button className="bg-white text-black hover:bg-white/90 transition-all duration-300 text-lg h-12 px-8">
-        Ver todos os cases
-        <ArrowRight className="ml-2 h-5 w-5" />
-      </Button>
-    </motion.div>
-  </div>
-</section>
-
-<section id="contact" ref={contactRef} className="relative py-32 overflow-hidden">
-  <div className="absolute inset-0 bg-[#FF0066]">
-    <div className="absolute inset-0 bg-[url('/placeholder.svg?height=1080&width=1920')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
-    <div className="absolute inset-0 bg-gradient-to-br from-[#FF5500] via-[#FF0066] to-purple-600"></div>
-  </div>
-
-  <div className="container mx-auto px-4 md:px-8 relative z-10">
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.7 }}
-      className="mx-auto max-w-4xl text-center"
-    >
-      <div className="mb-6 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm backdrop-blur-sm">
-        <Sparkles className="mr-2 h-4 w-4" />
-        Planos de Serviço
-      </div>
-      <h2 className="mb-8 text-5xl font-bold tracking-tighter sm:text-6xl">
-        Escolha o plano ideal para sua jornada
-      </h2>
-      <p className="mx-auto max-w-2xl text-xl mb-12 text-white/80">
-        Oferecemos diferentes planos para atender ao seu objetivo. Seja para uma campanha pontual ou para um projeto contínuo, temos a opção certa para você:
-      </p>
-
-      <div className="grid gap-12 md:grid-cols-2 xl:grid-cols-2">
-        {[
-          {
-            title: "Plano Iniciante",
-            price: "R$ 69,90/mês",
-            benefits: [
-              "Landing Page 100% personalizada",
-              "Hospedagem incluída",
-              "Sem relatórios de desempenho",
-              "Sem alterações mensais",
-              "Sem suporte personalizado",
-            ],
-          },
-          {
-            title: "Plano Essencial",
-            price: "R$ 109,90/mês",
-            benefits: [
-              "Tudo do Iniciante",
-              "Relatório de desempenho (1 a cada 3 meses)",
-              "Até 1 alteração simples por mês (texto ou imagem)",
-              "Suporte padrão via e-mail",
-            ],
-          },
-          {
-            title: "Plano Avançado",
-            price: "R$ 149,90/mês",
-            benefits: [
-              "Tudo do Essencial",
-              "Até 2 landing pages 100% personalizadas",
-              "Relatório mensal de desempenho",
-              "Até 4 alterações por mês (conteúdo, imagem, cor ou pequena seção)",
-              "Otimização de SEO (intermediária)",
-              "Suporte prioritário via WhatsApp",
-            ],
-          },
-          {
-            title: "Plano Premium",
-            price: "R$ 199,90/mês",
-            benefits: [
-              "Tudo do Avançado",
-              "Até 3 landing pages 100% personalizadas",
-              "Alterações ilimitadas",
-              "Redesign completo da LP a cada 6 meses",
-              "Consultoria estratégica de conversão (aumente vendas e leads)",
-              "Criação de campanhas sazonais",
-              "Monitoramento e ajustes contínuos de SEO",
-              "Suporte VIP – respostas em até 12 horas úteis",
-            ],
-          },
-        ].map((plan, i) => (
+        <div className="container mx-auto px-4 md:px-8 relative z-10">
           <motion.div
-            key={i}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="w-full max-w-[360px] mx-auto rounded-2xl border border-white/20 bg-white/10 p-8 text-left backdrop-blur-md"
+            transition={{ duration: 0.7 }}
+            className="mx-auto mb-16 max-w-3xl text-center"
           >
-            <h3 className="mb-2 text-2xl font-bold">{plan.title}</h3>
-            <div className="mb-4 text-lg font-semibold text-black">{plan.price}</div>
-            <ul className="space-y-2 mb-8">
-              {plan.benefits.map((benefit, j) => (
-                <li key={j} className="flex items-start space-x-2">
-                  <Check className="mt-0.5 h-4 w-4 text-black flex-shrink-0" />
-                  <span>{benefit}</span>
-                </li>
-              ))}
-            </ul>
-            <Button className="w-full bg-white text-[#FF0066] hover:bg-white/90">
-              <span>Assinar agora</span>
+            <h2 className="mb-8 text-4xl font-bold tracking-tighter sm:text-5xl">
+              Números que <span className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] text-transparent bg-clip-text">impressionam</span>
+            </h2>
+            <p className="text-xl text-zinc-400">
+              Resultados concretos que demonstram nossa capacidade de transformar influência em impacto mensurável.
+            </p>
+          </motion.div>
+
+          <div className="grid gap-8 md:grid-cols-4">
+            {[
+              { value: 500, label: "Influenciadores", icon: Users, suffix: "+" },
+              { value: 200, label: "Marcas parceiras", icon: Award, suffix: "+" },
+              { value: 150, label: "Milhões de alcance", icon: Globe, suffix: "M" },
+              { value: 350, label: "Crescimento médio", icon: TrendingUp, suffix: "%" },
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="group relative"
+              >
+                <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-[#FF5500]/50 to-[#9200BE] opacity-0 blur transition-all duration-500 group-hover:opacity-100"></div>
+                <div className="relative flex flex-col items-center rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 text-center backdrop-blur-sm transition-all duration-300 group-hover:border-[#FF0066]/30">
+                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#FF0066]/10">
+                    <stat.icon className="h-8 w-8 text-[#FF5500]" />
+                  </div>
+                  <StatsCounter value={stat.value} suffix={stat.suffix} className="text-4xl font-bold" />
+                  <p className="mt-2 text-zinc-400">{stat.label}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Cases Section */}
+      <section id="cases" ref={casesRef} className="relative py-32">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(255,0,102,0.05),transparent_70%)]"></div>
+        <div className="container mx-auto px-4 md:px-8 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7 }}
+            className="mx-auto mb-16 max-w-3xl text-center"
+          >
+            <div className="mb-6 inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-4 py-1.5 text-sm backdrop-blur-sm">
+              <Award className="mr-2 h-4 w-4 text-[#FF5500]" />
+              Nossos sucessos
+            </div>
+            <h2 className="mb-8 text-4xl font-bold tracking-tighter sm:text-5xl">
+              Resultados que <span className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] text-transparent bg-clip-text">falam por si</span>
+            </h2>
+            <p className="text-xl text-zinc-400">
+              Conheça algumas das nossas campanhas de maior sucesso e o impacto que geramos para marcas e influenciadores.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8 max-w-6xl mx-auto">
+            {[
+              {
+                title: "FuriaApp",
+                description: "Lançamento de produto tecnológico com influenciadores do setor tech e lifestyle.",
+                image: "/placeholder.svg?height=400&width=600&text=TechFuture",
+                stats: [
+                  { label: "Alcance", value: "+150%" },
+                  { label: "Conversão", value: "32%" },
+                  { label: "ROI", value: "420%" },
+                ],
+                tags: ["Tech", "Lançamento", "B2C"],
+              },
+              {
+                title: "Dra.KalyZanona",
+                description:
+                  "Estratégia omnichannel para nova linha de produtos fitness com micro e macro influenciadores.",
+                image: "/placeholder.svg?height=400&width=600&text=FitLife",
+                stats: [
+                  { label: "Novos seguidores", value: "200K" },
+                  { label: "Conversão", value: "45%" },
+                  { label: "Vendas", value: "+320%" },
+                ],
+                tags: ["Fitness", "Lifestyle", "E-commerce"],
+              },
+              {
+                title: "Advogados",
+                description:
+                  "Conscientização sobre moda sustentável com influenciadores alinhados à causa ambiental.",
+                image: "/placeholder.svg?height=400&width=600&text=EcoStyle",
+                stats: [
+                  { label: "Engajamento", value: "87%" },
+                  { label: "Influenciadores", value: "5" },
+                  { label: "Impacto social", value: "Alto" },
+                ],
+                tags: ["Sustentabilidade", "Moda", "Causa"],
+              },
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <CaseStudyCardComponent caseStudy={item} />
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7 }}
+            className="mt-16 flex justify-center"
+          >
+            <Button className="bg-white text-black hover:bg-white/90 transition-all duration-300 text-lg h-12 px-8">
+              Ver todos os cases
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </motion.div>
-        ))}
-      </div>
-    </motion.div>
-  </div>
-</section>
+        </div>
+      </section>
+
+      <section id="plans" ref={plansRef} className="relative py-32 overflow-hidden">
+        <div className="absolute inset-0 bg-[#FF0066]">
+          <div className="absolute inset-0 bg-[url('/placeholder.svg?height=1080&width=1920')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-[#FF5500] via-[#FF0066] to-purple-600"></div>
+        </div>
+
+        <div className="container mx-auto px-4 md:px-8 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="text-center m-0"
+          >
+            <div className="mb-6 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm backdrop-blur-sm">
+              <Sparkles className="mr-2 h-4 w-4" />
+              Planos de Serviço
+            </div>
+            <h2 className="mb-8 text-5xl font-bold tracking-tighter sm:text-6xl">
+              Escolha o plano ideal para sua jornada
+            </h2>
+            <p className="mx-auto max-w-2xl text-xl mb-12 text-white/80">
+              Oferecemos diferentes planos para atender ao seu objetivo. Seja para uma campanha pontual ou para um projeto contínuo, temos a opção certa para você:
+            </p>
+
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 max-w-8xl">
+              {[
+                {
+                  title: "Plano Iniciante",
+                  price: "R$ 69,90/mês",
+                  benefits: [
+                    "Landing Page 100% personalizada",
+                    "Hospedagem incluída",
+                    "Sem relatórios de desempenho",
+                    "Sem alterações mensais",
+                    "Sem suporte personalizado",
+                  ],
+                },
+                {
+                  title: "Plano Essencial",
+                  price: "R$ 109,90/mês",
+                  benefits: [
+                    "Tudo do Iniciante",
+                    "Relatório de desempenho (1 a cada 3 meses)",
+                    "Até 1 alteração simples por mês (texto ou imagem)",
+                    "Suporte padrão via e-mail",
+                  ],
+                },
+                {
+                  title: "Plano Avançado",
+                  price: "R$ 149,90/mês",
+                  benefits: [
+                    "Tudo do Essencial",
+                    "Até 2 landing pages 100% personalizadas",
+                    "Relatório mensal de desempenho",
+                    "Até 4 alterações por mês (conteúdo, imagem, cor ou pequena seção)",
+                    "Otimização de SEO (intermediária)",
+                    "Suporte prioritário via WhatsApp",
+                  ],
+                },
+                {
+                  title: "Plano Premium",
+                  price: "R$ 199,90/mês",
+                  benefits: [
+                    "Tudo do Avançado",
+                    "Até 3 landing pages 100% personalizadas",
+                    "Alterações ilimitadas",
+                    "Redesign completo da LP a cada 6 meses",
+                    "Consultoria estratégica de conversão (aumente vendas e leads)",
+                    "Criação de campanhas sazonais",
+                    "Monitoramento e ajustes contínuos de SEO",
+                    "Suporte VIP – respostas em até 12 horas úteis",
+                  ],
+                },
+              ].map((plan, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  className="w-full max-w-[600px] mx-auto rounded-2xl border border-white/20 bg-white/10 p-10 text-left backdrop-blur-md flex flex-col justify-between h-full"
+                >
+                  <div>
+                    <h3 className="mb-2 text-2xl font-bold text-black">{plan.title}</h3>
+                    <div className="mb-4 text-2xl font-extrabold text-white">{plan.price}</div>
+                    <ul className="space-y-2 mb-8">
+                      {plan.benefits.map((benefit, j) => {
+                        // Para o Plano Iniciante, troca o ícone se o benefício começa com "Sem"
+                        const isNegative =
+                          plan.title === "Plano Iniciante" && benefit.trim().toLowerCase().startsWith("sem")
+                        return (
+                          <li key={j} className="flex items-start space-x-2">
+                            {isNegative ? (
+                              <X className="mt-0.5 h-4 w-4 text-black flex-shrink-0" />
+                            ) : (
+                              <Check className="mt-0.5 h-4 w-4 text-black flex-shrink-0" />
+                            )}
+                            <span className={isNegative ? "text-white/55 line-through" : ""}>{benefit}</span>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </div>
+                  <Button className="w-full bg-white text-[#FF0066] hover:bg-white/90 mt-auto">
+                    <span>Assinar agora</span>
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="border-t border-zinc-800 bg-black py-16">
-  <div className="container mx-auto px-4 md:px-8">
-    <div className="grid gap-12 md:grid-cols-4 text-center md:text-left">
-      <div className="space-y-6 flex flex-col items-center md:items-start">
-        <Link href="/" className="text-2xl font-bold tracking-tighter">
-          <Link href="/" className="group relative flex items-center justify-center md:justify-start">
-            <Image
-              src="Logo_A_Foguete.svg"
-              alt="Astroya logo"
-              width={100}
-              height={10}
-              className="transition-all duration-300 group-hover:opacity-80"
-            />
-          </Link>
-        </Link>
-        <p className="text-zinc-400">A gente pilota, você decola!</p>
-        <div className="flex space-x-4 justify-center md:justify-start">
-          <Link
-            href="#"
-            className="rounded-full border border-zinc-800 p-2 text-zinc-400 hover:border-[#FF0066] hover:text-[#FF0066] transition-colors"
-          >
-            <Instagram className="h-5 w-5" />
-            <span className="sr-only">Instagram</span>
-          </Link>
-          <Link
-            href="#"
-            className="rounded-full border border-zinc-800 p-2 text-zinc-400 hover:border-[#FF0066] hover:text-[#FF0066] transition-colors"
-          >
-            <Linkedin className="h-5 w-5" />
-            <span className="sr-only">LinkedIn</span>
-          </Link>
-          <Link
-            href="#"
-            className="rounded-full border border-zinc-800 p-2 text-zinc-400 hover:border-[#FF0066] hover:text-[#FF0066] transition-colors"
-          >
-            <TikTok className="h-5 w-5" />
-            <span className="sr-only">TikTok</span>
-          </Link>
-        </div>
-      </div>
-
-      <div>
-        <h3 className="mb-6 text-lg font-bold">Navegação</h3>
-        <ul className="space-y-4 flex flex-col items-center md:items-start">
-          {navLinks.map((link) => (
-            <li key={link.id}>
-              <Link href={link.href} className="text-zinc-400 hover:text-white transition-colors">
-                {link.label}
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="grid gap-12 md:grid-cols-4 text-center md:text-left">
+            <div className="space-y-6 flex flex-col items-center md:items-start">
+              <Link href="/" className="text-2xl font-bold tracking-tighter">
+                <Link href="/" className="group relative flex items-center justify-center md:justify-start">
+                  <Image
+                    src="Logo_A_Foguete.svg"
+                    alt="Astroya logo"
+                    width={100}
+                    height={10}
+                    className="transition-all duration-300 group-hover:opacity-80"
+                  />
+                </Link>
               </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
+              <p className="text-zinc-400">A gente pilota, você decola!</p>
+              <div className="flex space-x-4 justify-center md:justify-start">
+                <Link
+                  href="#"
+                  className="rounded-full border border-zinc-800 p-2 text-zinc-400 hover:border-[#FF0066] hover:text-[#FF0066] transition-colors"
+                >
+                  <Instagram className="h-5 w-5" />
+                  <span className="sr-only">Instagram</span>
+                </Link>
+                <Link
+                  href="#"
+                  className="rounded-full border border-zinc-800 p-2 text-zinc-400 hover:border-[#FF0066] hover:text-[#FF0066] transition-colors"
+                >
+                  <Linkedin className="h-5 w-5" />
+                  <span className="sr-only">LinkedIn</span>
+                </Link>
+                <Link
+                  href="#"
+                  className="rounded-full border border-zinc-800 p-2 text-zinc-400 hover:border-[#FF0066] hover:text-[#FF0066] transition-colors"
+                >
+                  <TikTok className="h-5 w-5" />
+                  <span className="sr-only">TikTok</span>
+                </Link>
+              </div>
+            </div>
 
-      <div>
-        <h3 className="mb-6 text-lg font-bold">Serviços</h3>
-        <ul className="space-y-4 flex flex-col items-center md:items-start">
-          {[
-            "Criação de Landing Pages",
-            "Otimização de SEO",
-            "Gestão de tráfego",
-            "Email marketing",
-            "Análise de dados",
-            "Consultoria de marketing digital",
-          ].map((service, i) => (
-            <li key={i}>
-              <Link href="#" className="text-zinc-400 hover:text-white transition-colors">
-                {service}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
+            <div>
+              <h3 className="mb-6 text-lg font-bold">Navegação</h3>
+              <ul className="space-y-4 flex flex-col items-center md:items-start">
+                {navLinks.map((link) => (
+                  <li key={link.id}>
+                    <Link href={link.href} className="text-zinc-400 hover:text-white transition-colors">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-      <div>
-        <h3 className="mb-6 text-lg font-bold">Contato</h3>
-        <ul className="space-y-4 text-zinc-400 flex flex-col items-center md:items-start">
-          <li>astroya.br@gmail.com</li>
-          <li>+55 41 99999-9999</li>
-          <li>Curitiba, PR - Brasil</li>
-        </ul>
-        <div className="mt-6 flex justify-center md:justify-start">
-          <Button
-            className="w-full border border-zinc-800 text-zinc-400 hover:border-[#9200BE] hover:text-[#FF5500] max-w-xs"
-          >
-            Fale conosco
-          </Button>
+            <div>
+              <h3 className="mb-6 text-lg font-bold">Serviços</h3>
+              <ul className="space-y-4 flex flex-col items-center md:items-start">
+                {[
+                  "Criação de Landing Pages",
+                  "Otimização de SEO",
+                  "Gestão de tráfego",
+                  "Email marketing",
+                  "Análise de dados",
+                  "Consultoria de marketing digital",
+                ].map((service, i) => (
+                  <li key={i}>
+                    <Link href="#" className="text-zinc-400 hover:text-white transition-colors">
+                      {service}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="mb-6 text-lg font-bold">Contato</h3>
+              <ul className="space-y-4 text-zinc-400 flex flex-col items-center md:items-start">
+                <li>astroya.br@gmail.com</li>
+                <li>+55 41 99999-9999</li>
+                <li>Curitiba, PR - Brasil</li>
+              </ul>
+              <div className="mt-6 flex justify-center md:justify-start">
+                <Button
+                  className="w-full bg-gradient-to-r from-[#9200BE] to-[#FF5500] text-white border-none hover:from-[#FF5500] hover:to-[#9200BE] max-w-xs transition-all duration-300"
+                >
+                  Fale conosco
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-16 border-t border-zinc-800 pt-8 text-center">
+            <p className="text-xs text-zinc-500">© 2025 Astroya. Todos os direitos reservados.</p>
+          </div>
         </div>
-      </div>
-    </div>
-
-    <div className="mt-16 border-t border-zinc-800 pt-8 text-center">
-      <p className="text-xs text-zinc-500">© 2025 Astroya. Todos os direitos reservados.</p>
-    </div>
-  </div>
-</footer>
+      </footer>
+      <a
+        href="https://wa.me/5541999999999"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed z-50 bottom-6 right-6 group"
+        aria-label="Fale conosco no WhatsApp"
+      >
+        <span className="sr-only">WhatsApp</span>
+        <div className="rounded-full shadow-lg bg-gradient-to-br from-[#9200BE] to-[#FF5500] p-0.5 transition-transform hover:scale-105">
+          <div className="flex items-center justify-center rounded-full bg-black p-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width={28}
+              height={28}
+              viewBox="0 0 24 24"
+              fill="none"
+              className="text-white"
+            >
+              <path
+                d="M17.472 14.382c-.297-.149-1.758-.867-2.031-.967-.273-.099-.471-.148-.67.15-.198.297-.767.967-.94 1.164-.173.198-.347.223-.644.075-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.372-.025-.521-.075-.149-.669-1.612-.916-2.206-.242-.579-.487-.5-.669-.51-.173-.008-.372-.01-.571-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.099 3.205 5.077 4.372.71.306 1.263.489 1.694.626.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.288.173-1.413-.074-.124-.272-.198-.57-.347z"
+                fill="currentColor"
+              />
+              <path
+                d="M12.004 2.003c-5.514 0-9.997 4.483-9.997 9.997 0 1.762.462 3.484 1.34 4.997L2 22l5.145-1.341c1.462.799 3.09 1.217 4.859 1.217 5.514 0 9.997-4.483 9.997-9.997 0-2.664-1.037-5.168-2.922-7.053C17.172 3.04 14.668 2.003 12.004 2.003zm0 17.994c-1.627 0-3.217-.427-4.584-1.236l-.328-.195-3.055.797.814-2.978-.213-.306C3.427 14.217 3.003 12.627 3.003 11c0-4.963 4.038-9.001 9.001-9.001 2.404 0 4.666.936 6.364 2.634 1.698 1.698 2.634 3.96 2.634 6.364 0 4.963-4.038 9.001-9.001 9.001z"
+                fill="currentColor"
+              />
+            </svg>
+          </div>
+        </div>
+      </a>
     </div>
   )
 }
@@ -1248,90 +1214,6 @@ export function MagneticButton({ children, className, size = "default" }: Magnet
       >
         {children}
       </Button>
-    </motion.div>
-  )
-}
-
-// Substitua a função TalentCard no arquivo components/talent-card.tsx
-interface TalentProps {
-  name: string
-  niche: string
-  followers: string
-  engagement: string
-}
-
-export interface TalentCardProps {
-  talent: TalentProps
-  className?: string
-  nameClassName?: string
-  descClassName?: string
-}
-
-export interface TalentCardProps {
-  talent: TalentProps
-  className?: string
-  nameClassName?: string
-  descClassName?: string
-}
-
-export function TalentCard({
-  talent,
-  className = "",
-  nameClassName = "",
-  descClassName = "",
-}: TalentCardProps) {
-  const [isHovered, setIsHovered] = useState(false)
-  const isMobile = useMobile()
-
-  return (
-    <motion.div
-      className={cn("group flex flex-col items-center text-center", className)}
-      whileHover={{ y: -10 }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-    >
-      <div className="relative mb-3 md:mb-4">
-        <motion.div
-          className="absolute -inset-2 rounded-full bg-gradient-to-r from-[#FF0066] to-purple-600 opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-100"
-          animate={{
-            scale: isHovered ? [1, 1.1, 1] : 1,
-            opacity: isHovered ? 0.7 : 0,
-          }}
-          transition={{
-            duration: 2,
-            repeat: isHovered ? Number.POSITIVE_INFINITY : 0,
-            repeatType: "reverse",
-          }}
-        />
-
-        <div className="relative h-20 w-20 sm:h-24 sm:w-24 md:h-32 md:w-32 lg:h-40 lg:w-40 overflow-hidden rounded-full border-2 border-zinc-800 bg-zinc-900 transition-all duration-300 group-hover:border-[#FF0066] group-hover:shadow-[0_0_20px_rgba(255,0,102,0.3)]">
-          <Image
-            src={`/placeholder.svg?height=200&width=200&text=${talent.name}`}
-            alt={talent.name}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
-          />
-
-          <motion.div
-            className="absolute inset-0 flex items-center justify-center bg-black/70 opacity-0 transition-opacity"
-            animate={{ opacity: isHovered ? 1 : 0 }}
-          >
-            <div className="flex flex-col items-center space-y-1 md:space-y-2">
-              <div className="flex items-center space-x-1 text-xs md:text-sm">
-                <Users className="h-2 w-2 md:h-3 md:w-3 text-[#FF0066]" />
-                <span>{talent.followers}</span>
-              </div>
-              <div className="text-[10px] md:text-xs text-zinc-400">{talent.engagement} engagement</div>
-              <div className="mt-1 md:mt-2 rounded-full bg-[#FF0066]/20 p-1 md:p-2">
-                <Instagram className="h-3 w-3 md:h-4 md:w-4 text-[#FF0066]" />
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-
-      <h3 className={cn("text-sm md:text-lg font-bold", nameClassName)}>{talent.name}</h3>
-      <p className={cn("text-xs md:text-sm text-zinc-400", descClassName)}>{talent.niche}</p>
     </motion.div>
   )
 }

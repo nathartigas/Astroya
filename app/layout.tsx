@@ -18,7 +18,6 @@ export const metadata = {
   title: "Astroya Brasil",
   description: "Alavancamos seu negócio com soluções em tecnologia.",
   keywords: "tecnologia, landing pages, front-end, digitais, desenvolvimento, software, web, aplicativos, design, branding, marketing digital",
-  generator: "v0.dev",
   icons: {
     icon: "/Logo_A_Foguete.svg", // ou .png se for o caso
   },
