@@ -31,7 +31,6 @@ import { useMobile } from "@/hooks/use-mobile"
 import { ParticleCanvas } from "@/components/particle-canvas"
 import { GlowingButton } from "@/components/glowing-button"
 import { HeroGradient } from "@/components/hero-gradient"
-import { MagneticButton as MagneticButtonComponent } from "@/components/magnetic-button"
 import { ScrollProgress } from "@/components/scroll-progress"
 import { StatsCounter } from "@/components/stats-counter"
 import { CaseStudyCard as CaseStudyCardComponent } from "@/components/case-study-card"
@@ -40,6 +39,7 @@ import { RotatingText } from "@/components/rotating-text"
 import { GlitchText } from "@/components/glitch-text"
 import { MouseFollower } from "@/components/mouse-follower"
 import { TestimonialCarousel } from "@/components/testimonial-carousel"
+import { ConsultoriaModal } from "@/components/consultoria-modal"
 
 
 export default function Home() {
@@ -108,6 +108,11 @@ export default function Home() {
     { href: "#cases", label: "Cases", id: "cases" },
     { href: "#plans", label: "Planos", id: "plans" },
   ]
+
+  // Modal state and handlers for ConsultoriaModal
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const openModal = () => setIsModalOpen(true)
+  const closeModal = () => setIsModalOpen(false)
 
   return (
     <div className="relative min-h-screen bg-black text-white selection:bg-[#FF5500] selection:text-white overflow-x-hidden">
@@ -261,18 +266,25 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 1 }}
               className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 w-full items-center md:items-start"
             >
-              <MagneticButtonComponent
+              <MagneticButton
                 className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] hover:from-[#FF5500] hover:to-[#9200BE] text-base md:text-lg h-12 md:h-14 px-6 md:px-8 w-full sm:w-auto transition-all duration-300"
+                onClick={() => {
+                  const plansSection = document.getElementById("plans")
+                  if (plansSection) {
+                    plansSection.scrollIntoView({ behavior: "smooth" })
+                  }
+                }}
               >
                 <span>Quero decolar!</span>
                 <Sparkles className="ml-2 h-4 w-4 md:h-5 md:w-5" />
-              </MagneticButtonComponent>
+              </MagneticButton>         
 
               <Button
-                className="outline group border-[#ffffff] bg-black hover:bg-[#9200BE]/10 text-base md:text-lg h-12 md:h-14 px-6 md:px-8 w-full sm:w-auto transition-all duration-300"
+                className="bg-white text-black rounded-xl border border-zinc-200 h-12 md:h-14 px-6 md:px-8 w-full sm:w-auto hover:bg-zinc-100 transition-all duration-300"
+                onClick={openModal}
               >
-                <span>Consultoria grátis</span>
-                <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                Consultoria Gratuita
+                <Users className="ml-2 h-4 w-4" />
               </Button>
             </motion.div>
 
@@ -1128,6 +1140,7 @@ export default function Home() {
           </div>
         </div>
       </a>
+    <ConsultoriaModal isOpen={isModalOpen} onClose={closeModal} />
     </div>
   )
 }
@@ -1176,9 +1189,10 @@ interface MagneticButtonProps {
   children: React.ReactNode
   className?: string
   size?: "default" | "sm" | "lg"
+  onClick?: () => void
 }
 
-export function MagneticButton({ children, className, size = "default" }: MagneticButtonProps) {
+export function MagneticButton({ children, className, size = "default", onClick }: MagneticButtonProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const ref = useRef<HTMLDivElement>(null)
   const isMobile = useMobile()
@@ -1211,6 +1225,7 @@ export function MagneticButton({ children, className, size = "default" }: Magnet
       <Button
         className={cn("relative bg-[#FF0066] hover:bg-[#D80055] transition-all duration-300 z-10", className)}
         size={size}
+        onClick={onClick}
       >
         {children}
       </Button>
