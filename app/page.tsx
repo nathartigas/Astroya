@@ -280,7 +280,7 @@ export default function Home() {
               </MagneticButton>
             
               <Button
-                className="flex-1 bg-white text-black rounded-xl border border-zinc-200 text-base md:text-lg h-12 md:h-14 px-6 md:px-8 transition-all duration-300"
+                className="flex-1 bg-white text-black rounded-xl border border-zinc-200 hover:bg-[#FF5500] hover:text-white text-base md:text-lg h-12 md:h-14 px-6 md:px-8 transition-all duration-300"
                 onClick={openModal}
               >
                 Consultoria Gratuita

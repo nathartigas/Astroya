@@ -55,7 +55,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-            <div className="relative w-full max-w-3xl mx-auto bg-zinc-950 rounded-2xl border border-zinc-800 p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-auto">
+            <div className="relative w-full max-w-3xl mx-auto bg-zinc-950 rounded-2xl border border-zinc-800 p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-hidden">
                 <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-br from-[#9200BE] to-[#FF5500] opacity-30 blur-sm -z-10"></div>
 
                 <div className="flex justify-between items-center mb-6">
@@ -77,7 +77,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                     <p>Criação de Landing Pages - Preencha os campos abaixo para agendar sua consultoria gratuita</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6 overflow-y-auto max-h-[70vh] pr-2 custom-scrollbar">
+                <form onSubmit={handleSubmit} className="space-y-6 overflow-y-auto max-h-[48vh] pr-2 custom-scrollbar">
                     <div className="space-y-4">
                         <h3 className="text-lg font-semibold text-white">Informações de Contato</h3>
 
@@ -90,7 +90,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                                 value={formData.nome}
                                 onChange={handleChange}
                                 required
-                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE]"
+                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE] ml-[4px]"
                             />
                         </div>
 
@@ -104,7 +104,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                                 value={formData.email}
                                 onChange={handleChange}
                                 required
-                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE]"
+                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE] ml-[4px]"
                             />
                         </div>
 
@@ -116,7 +116,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                                 value={formData.empresa}
                                 onChange={handleChange}
                                 required
-                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE]"
+                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE] ml-[4px]"
                             />
                         </div>
 
@@ -129,7 +129,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                                 value={formData.telefone}
                                 onChange={handleChange}
                                 required
-                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE]"
+                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE] ml-[4px]"
                             />
                         </div>
 
@@ -142,7 +142,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                                 value={formData.segmento}
                                 onChange={handleChange}
                                 required
-                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE]"
+                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE] ml-[4px]"
                             />
                         </div>
                     </div>
@@ -155,7 +155,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                             <RadioGroup
                                 value={formData.possuiSite}
                                 onValueChange={(value) => handleRadioChange("possuiSite", value)}
-                                className="flex space-x-8"
+                                className="flex space-x-8 ml-[4px]"
                                 required
                             >
                                 <div className="flex items-center space-x-2">
@@ -181,7 +181,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                                     name="linkSite"
                                     value={formData.linkSite}
                                     onChange={handleChange}
-                                    className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE]"
+                                    className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE] ml-[4px]"
                                 />
                             </div>
                         )}
@@ -191,7 +191,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                             <RadioGroup
                                 value={formData.objetivo}
                                 onValueChange={(value) => handleRadioChange("objetivo", value)}
-                                className="space-y-2"
+                                className="space-y-2 ml-[4px]"
                                 required
                             >
                                 <div className="flex items-center space-x-2">
@@ -235,7 +235,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                                     name="outroObjetivo"
                                     value={formData.outroObjetivo}
                                     onChange={handleChange}
-                                    className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE]"
+                                    className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE] ml-[4px]"
                                 />
                             </div>
                         )}
@@ -249,7 +249,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                                 value={formData.servicos}
                                 onChange={handleChange}
                                 required
-                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE] min-h-[100px]"
+                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE] min-h-[100px] ml-[4px]"
                             />
                         </div>
                     </div>
@@ -262,7 +262,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                             <RadioGroup
                                 value={formData.identidadeVisual}
                                 onValueChange={(value) => handleRadioChange("identidadeVisual", value)}
-                                className="flex flex-wrap gap-4"
+                                className="flex flex-wrap gap-4 ml-[4px]"
                                 required
                             >
                                 <div className="flex items-center space-x-2">
@@ -295,7 +295,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                                 value={formData.publicoAlvo}
                                 onChange={handleChange}
                                 required
-                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE] min-h-[100px]"
+                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE] min-h-[100px] ml-[4px]"
                             />
                         </div>
 
@@ -309,7 +309,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                                 placeholder="Link ou nome do site"
                                 value={formData.referencia}
                                 onChange={handleChange}
-                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE]"
+                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE] ml-[4px]"
                             />
                         </div>
                     </div>
@@ -322,7 +322,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                             <RadioGroup
                                 value={formData.fase}
                                 onValueChange={(value) => handleRadioChange("fase", value)}
-                                className="flex flex-wrap gap-4"
+                                className="flex flex-wrap gap-4 ml-[4px]"
                                 required
                             >
                                 <div className="flex items-center space-x-2">
@@ -362,7 +362,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                                 value={formData.dificuldades}
                                 onChange={handleChange}
                                 required
-                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE] min-h-[100px]"
+                                className="bg-zinc-900 border-zinc-800 focus:border-[#9200BE] min-h-[100px] ml-[4px]"
                             />
                         </div>
                     </div>
@@ -370,7 +370,7 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                     <div className="pt-4 flex justify-end">
                         <Button
                             type="submit"
-                            className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] hover:opacity-90 text-white px-8 py-6 rounded-full shadow-lg shadow-[#FF5500]/20 transition-all duration-300 hover:scale-105"
+                            className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] hover:opacity-90 text-white px-8 py-6 rounded-full shadow-lg shadow-[#FF5500]/20 transition-all duration-300 hover:scale-105 ml-[4px]"
                         >
                             Enviar Formulário
                         </Button>
