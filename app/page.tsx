@@ -264,10 +264,10 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 1 }}
-              className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 w-full items-center md:items-start"
+              className="w-full flex flex-col gap-4 sm:flex-row sm:gap-4 items-center md:items-start"
             >
               <MagneticButton
-                className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] hover:from-[#FF5500] hover:to-[#9200BE] text-base md:text-lg h-12 md:h-14 px-6 md:px-8 w-full sm:w-auto transition-all duration-300"
+                className="flex-1 bg-gradient-to-r from-[#9200BE] to-[#FF5500] hover:from-[#FF5500] hover:to-[#9200BE] text-base md:text-lg h-12 md:h-14 px-6 md:px-8 transition-all duration-300"
                 onClick={() => {
                   const plansSection = document.getElementById("plans")
                   if (plansSection) {
@@ -277,10 +277,10 @@ export default function Home() {
               >
                 <span>Quero decolar!</span>
                 <Sparkles className="ml-2 h-4 w-4 md:h-5 md:w-5" />
-              </MagneticButton>         
-
+              </MagneticButton>
+            
               <Button
-                className="bg-white text-black rounded-xl border border-zinc-200 h-12 md:h-14 px-6 md:px-8 w-full sm:w-auto hover:bg-zinc-100 transition-all duration-300"
+                className="flex-1 bg-white text-black rounded-xl border border-zinc-200 text-base md:text-lg h-12 md:h-14 px-6 md:px-8 transition-all duration-300"
                 onClick={openModal}
               >
                 Consultoria Gratuita
