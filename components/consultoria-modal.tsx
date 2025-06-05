@@ -2,13 +2,15 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { FormEvent, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Textarea } from "@/components/ui/textarea"
 import { X } from "lucide-react"
+import Link from "next/link"
+import Image from "next/image"
 
 interface ConsultoriaModalProps {
     isOpen: boolean
@@ -34,6 +36,8 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
         dificuldades: "",
     })
 
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
         setFormData((prev) => ({ ...prev, [name]: value }))
@@ -43,13 +47,121 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
         setFormData((prev) => ({ ...prev, [name]: value }))
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        console.log("Formulário enviado:", formData)
-        // Aqui você adicionaria a lógica para enviar o formulário para seu backend
-        alert("Formulário enviado com sucesso! Entraremos em contato em breve.")
-        onClose()
+    // ENVIO PARA FORMSUBMIT
+
+const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+        const response = await fetch("https://formsubmit.co/ajax/astroya.br@gmail.com", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                ...formData,
+                _subject: `[Consultoria LP] ${formData.empresa} - ${formData.nome}`,
+                    _template: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+                        <div style="background: linear-gradient(to right, #9200BE, #FF5500); padding: 20px; color: white; text-align: center;">
+                            <h1 style="margin: 0;">Nova Consultoria de Landing Page</h1>
+                            <p style="margin: 5px 0 0; font-size: 18px;">${formData.empresa}</p>
+                        </div>
+                        
+                        <div style="padding: 20px;">
+                            <h2 style="color: #9200BE; border-bottom: 2px solid #FF5500; padding-bottom: 5px;">Informações do Cliente</h2>
+                            <p><strong>Nome:</strong> ${formData.nome}</p>
+                            <p><strong>Contato:</strong> ${formData.email} | ${formData.telefone}</p>
+                            <p><strong>Segmento:</strong> ${formData.segmento}</p>
+                            
+                            <h2 style="color: #9200BE; border-bottom: 2px solid #FF5500; padding-bottom: 5px; margin-top: 20px;">Detalhes do Projeto</h2>
+                            <p><strong>Possui site:</strong> ${formData.possuiSite === "sim" ? `Sim (${formData.linkSite || 'sem link'})` : 'Não'}</p>
+                            <p><strong>Objetivo:</strong> ${formData.objetivo === "outro" ? formData.outroObjetivo : formData.objetivo}</p>
+                            <p><strong>Identidade Visual:</strong> ${formData.identidadeVisual}</p>
+                            
+                            <h3 style="margin-top: 15px;">Serviços/Produtos:</h3>
+                            <div style="background: #f9f9f9; padding: 10px; border-radius: 5px;">
+                                ${formData.servicos.replace(/\n/g, '<br>')}
+                            </div>
+                            
+                            <h3 style="margin-top: 15px;">Público-Alvo:</h3>
+                            <div style="background: #f9f9f9; padding: 10px; border-radius: 5px;">
+                                ${formData.publicoAlvo.replace(/\n/g, '<br>')}
+                            </div>
+                            
+                            <h2 style="color: #9200BE; border-bottom: 2px solid #FF5500; padding-bottom: 5px; margin-top: 20px;">Observações</h2>
+                            <div style="background: #f9f9f9; padding: 10px; border-radius: 5px;">
+                                ${formData.dificuldades.replace(/\n/g, '<br>')}
+                            </div>
+                        </div>
+                        
+                        <div style="background: #f5f5f5; padding: 15px; text-align: center; font-size: 12px; color: #666;">
+                            <p>Recebido em ${new Date().toLocaleString('pt-BR')}</p>
+                            <p>© ${new Date().getFullYear()} Astroya - Todos os direitos reservados</p>
+                        </div>
+                    </div>
+                `,
+                    _autoresponse: `
+                    Olá ${formData.nome},
+                    
+                    Agradecemos por solicitar nossa consultoria para criação de Landing Page!
+                    
+                    Recebemos suas informações e nossa equipe especializada já está analisando 
+                    suas necessidades para oferecer a melhor solução.
+                    
+                    Resumo do seu pedido:
+                    - Empresa: ${formData.empresa}
+                    - Objetivo: ${formData.objetivo === "outro" ? formData.outroObjetivo : formData.objetivo}
+                    - Segmento: ${formData.segmento}
+                    
+                    Você receberá nosso contato em até 48 horas úteis com as próximas etapas.
+                    
+                    Caso precise adicionar qualquer informação ou tenha dúvidas, responda este email.
+                    
+                    Atenciosamente,
+                    Equipe Astroya
+                    
+                    [Imagem de assinatura ou logo]
+                `,
+                    _captcha: "false"
+                })
+            });
+
+            if (!response.ok) {
+            throw new Error("Erro ao enviar o formulário.");
+        }
+
+        alert("Formulário enviado com sucesso! Verifique seu e-mail.");
+        onClose();
+        
+    } catch (error) {
+        console.error("Erro ao enviar:", error);
+        alert("Erro ao enviar o formulário. Tente novamente.");
+    } finally {
+        setIsSubmitting(false);
     }
+
+    // Resetar o formulário
+    setFormData({
+        nome: "",
+        email: "",
+        empresa: "",
+        telefone: "",
+        segmento: "",
+        possuiSite: "",
+        linkSite: "",
+        objetivo: "",
+        outroObjetivo: "",
+        servicos: "",
+        identidadeVisual: "",
+        publicoAlvo: "",
+        referencia: "",
+        fase: "",
+        dificuldades: "",
+    });
+};
 
     if (!isOpen) return null
 
@@ -59,9 +171,19 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                 <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-br from-[#9200BE] to-[#FF5500] opacity-30 blur-sm -z-10"></div>
 
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold bg-gradient-to-r from-[#9200BE] to-[#FF5500] text-transparent bg-clip-text">
-                        Formulário de Inscrição para Consultoria
-                    </h2>
+                    <Link
+                        href="/"
+                        className="text-2xl font-bold tracking-tighter group relative flex items-center justify-center md:justify-start"
+                    >
+                        <Image
+                            src="Logo_A_Foguete.svg"
+                            alt="Astroya logo"
+                            width={100}
+                            height={10}
+                            className="transition-all duration-300 group-hover:opacity-80"
+                            priority
+                        />
+                    </Link>
                     <Button
                         variant="ghost"
                         size="icon"
@@ -371,8 +493,9 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
                         <Button
                             type="submit"
                             className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] hover:opacity-90 text-white px-8 py-6 rounded-full shadow-lg shadow-[#FF5500]/20 transition-all duration-300 hover:scale-105 ml-[4px]"
+                            disabled={isSubmitting}
                         >
-                            Enviar Formulário
+                            {isSubmitting ? "Enviando..." : "Enviar Formulário"}
                         </Button>
                     </div>
                 </form>
