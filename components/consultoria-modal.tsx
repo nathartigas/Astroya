@@ -77,10 +77,10 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
-        setIsSubmitting(true)
-        setSubmitError(null)
-
         try {
+            setIsSubmitting(true)
+            setSubmitError(null)
+
             const controller = new AbortController()
             const timeoutId = setTimeout(() => controller.abort(), 10000) // 10s timeout
 
@@ -128,8 +128,11 @@ export function ConsultoriaModal({ isOpen, onClose }: ConsultoriaModalProps) {
             onClose()
 
         } catch (error: any) {
-            const errorMsg = error instanceof Error ? error.message : 'Erro desconhecido'
-            setSubmitError(errorMsg)
+            if (error.name === "AbortError") {
+                setSubmitError("A conexão foi interrompida. Tente novamente.")
+            } else {
+                setSubmitError(error.message || "Erro desconhecido")
+            }
             console.error('Erro no envio:', error)
         } finally {
             setIsSubmitting(false)

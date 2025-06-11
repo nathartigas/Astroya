@@ -151,7 +151,7 @@ export async function POST(request: Request) {
   <meta charset="UTF-8">
   <title>Recebemos sua solicitação!</title>
 </head>
-<body style="font-family: Arial, sans-serif; background: #F9F5FF; margin:0; padding:0;">
+<body style="font-family: Arial, sans-serif; background: #F9F5FF; margin:0; padding:20px;">
   <div style="max-width:600px;margin:20px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.08);">
     <div style="background: linear-gradient(135deg, #9200BE, #AD33D1); padding:40px 20px; color:#fff; text-align:center;">
       <h1 style="margin:0;font-size:28px;font-weight:600;letter-spacing:0.5px;">OBRIGADO POR ENTRAR EM CONTATO!</h1>

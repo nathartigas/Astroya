@@ -23,7 +23,10 @@ import {
   Heart,
   Check,
   X,
+  Settings,
 } from "lucide-react"
+import { IoSettingsOutline } from "react-icons/io5";
+import { FaRegCalendarAlt, FaRegStar } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
@@ -113,6 +116,9 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const openModal = () => setIsModalOpen(true)
   const closeModal = () => setIsModalOpen(false)
+
+  // Adicione este estado no início do componente:
+  const [isAnnual, setIsAnnual] = useState(false)
 
   return (
     <div className="relative min-h-screen bg-black text-white selection:bg-[#FF5500] selection:text-white overflow-x-hidden">
@@ -227,18 +233,7 @@ export default function Home() {
             className="flex flex-col justify-center items-center md:items-start space-y-6 md:space-y-8 text-center md:text-left"
           >
             <div className="space-y-4 md:space-y-6 w-full flex flex-col items-center md:items-start">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.5 }}
-                className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-3 py-1 md:px-4 md:py-1.5 text-xs md:text-sm backdrop-blur-sm"
-              >
-                <span className="relative flex h-2 w-2 mr-1 md:mr-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#7CFC00] opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[#90EE90]"></span>
-                </span>
-                Desenvolvimento FullStack.
-              </motion.div>
+
 
               <img
                 src="/LOGOINICIAL.svg"
@@ -278,7 +273,7 @@ export default function Home() {
                 <span>Quero decolar!</span>
                 <Sparkles className="ml-2 h-4 w-4 md:h-5 md:w-5" />
               </MagneticButton>
-            
+
               <Button
                 className="flex-1 bg-white text-black rounded-xl border border-zinc-200 hover:bg-[#FF5500] hover:text-white text-base md:text-lg h-12 md:h-14 px-6 md:px-8 transition-all duration-300"
                 onClick={openModal}
@@ -487,11 +482,10 @@ export default function Home() {
               <Zap className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4 text-[#FF5500]" />O que oferecemos
             </div>
             <h2 className="mb-6 md:mb-8 text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter">
-              Nossos <span className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] text-transparent bg-clip-text">Serviços</span> exclusivos
+              Soluções sob medida que  <span className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] text-transparent bg-clip-text">Impulsionam Negócios</span>
             </h2>
             <p className="text-base md:text-xl text-zinc-400">
-              Soluções personalizadas para influenciadores e marcas que buscam resultados extraordinários e conexões
-              autênticas no mundo digital.
+              Landing pages inteligentes, com design autoral, performance real e suporte contínuo — pensadas para empresas que querem se destacar e vender mais.
             </p>
           </motion.div>
 
@@ -503,80 +497,50 @@ export default function Home() {
               transition={{ duration: 0.7 }}
               className="space-y-8"
             >
-              <div className="relative">
-                <div className="absolute -left-4 top-0 h-full w-1 bg-gradient-to-b from-[#FF5500] to-purple-500"></div>
-                <h3 className="text-2xl font-bold mb-6 pl-4">Para Influenciadores</h3>
-              </div>
 
               {[
                 {
-                  title: "Gestão de carreira e imagem",
+                  title: "Estratégia + Design que Converte",
                   description:
-                    "Desenvolvemos estratégias personalizadas para potencializar sua presença digital e construir uma marca pessoal autêntica e lucrativa.",
+                    "Criamos páginas com design autoral e estrutura pensada para atrair, engajar e gerar ação real.",
+
                   icon: (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-6 w-6"
-                    >
-                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                      <circle cx="9" cy="7" r="4" />
-                      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <path d="M9 18h6" />
+  <path d="M12 2a7 7 0 0 0-4 12.9v3.1h8v-3.1A7 7 0 0 0 12 2z" />
+  <line x1="12" y1="14" x2="12" y2="18" />
+  <path d="M9 18v3h6v-3" />
+</svg>
+
+
                   ),
-                  features: ["Planejamento estratégico", "Identidade visual", "Gestão de conteúdo"],
+
+
+                  features: ["Arquitetura de conversão", "Design personalizado", "Copywriting estratégico"],
                 },
                 {
-                  title: "Conexão com marcas relevantes",
+                  title: "Atualizações Sob Demanda",
                   description:
-                    "Facilitamos parcerias estratégicas alinhadas com seus valores e público, garantindo colaborações autênticas e lucrativas.",
+                    "Seu site acompanha cada fase do seu negócio. Alterações sempre que precisar, sem dor de cabeça.",
                   icon: (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-6 w-6"
-                    >
-                      <path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z" />
-                    </svg>
+                    <h1><IoSettingsOutline /></h1>
+
                   ),
-                  features: ["Matchmaking personalizado", "Negociação de contratos", "Gestão de relacionamentos"],
+                  features: ["Ajustes de textos e seções", "Inserção de novos elementos", "Testes A/B e otimizações"],
                 },
                 {
-                  title: "Estratégias de crescimento",
+                  title: "Relatórios com Insights",
                   description:
-                    "Planos personalizados para expandir seu alcance e engajamento de forma sustentável, com foco em resultados mensuráveis e de longo prazo.",
+                    "Decisões melhores com base em dados claros, objetivos e traduzidos para ação.",
                   icon: (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-6 w-6"
-                    >
-                      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
+                      <line x1="12" y1="20" x2="12" y2="10" />
+                      <line x1="18" y1="20" x2="18" y2="4" />
+                      <line x1="6" y1="20" x2="6" y2="16" />
                     </svg>
+
                   ),
-                  features: ["Análise de métricas", "Otimização de algoritmos", "Estratégias de monetização"],
+                  features: ["Métricas de acesso e cliques", "Análise de conversão", "Sugestões mensais"],
                 },
               ].map((item, index) => (
                 <motion.div
@@ -631,65 +595,46 @@ export default function Home() {
               transition={{ duration: 0.7 }}
               className="space-y-8"
             >
-              <div className="relative">
-                <div className="absolute -left-4 top-0 h-full w-1 bg-gradient-to-b from-purple-500 to-[#FF5500]"></div>
-                <h3 className="text-2xl font-bold mb-6 pl-4">Para Marcas</h3>
-              </div>
 
               {[
                 {
-                  title: "Curadoria de talentos",
+                  title: "SEO Técnico e Estratégico ",
                   description:
-                    "Selecionamos influenciadores alinhados com o propósito e valores da sua marca, garantindo autenticidade e relevância para seu público-alvo.",
+                    "Ranqueamento e visibilidade real com estrutura otimizada desde o código até o conteúdo.",
                   icon: (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-6 w-6"
-                    >
-                      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
+                      <circle cx="12" cy="12" r="10" />
+                      <circle cx="12" cy="12" r="6" />
+                      <circle cx="12" cy="12" r="2" />
+                      <line x1="12" y1="2" x2="12" y2="6" />
+                      <line x1="12" y1="18" x2="12" y2="22" />
+                      <line x1="2" y1="12" x2="6" y2="12" />
+                      <line x1="18" y1="12" x2="22" y2="12" />
                     </svg>
+
                   ),
                   features: [
-                    "Análise de compatibilidade",
-                    "Verificação de autenticidade",
-                    "Avaliação de performance",
+                    "Palavras-chave estratégicas",
+                    "SEO on-page e técnico",
+                    "Velocidade e responsividade",
                   ],
                 },
                 {
-                  title: "Campanhas de influência",
+                  title: "Agilidade sem perder qualidade",
                   description:
-                    "Desenvolvemos estratégias criativas e eficazes para maximizar o impacto da sua marca através de narrativas autênticas e envolventes.",
+                    "Nada de esperar semanas. Entregamos rápido e com refinamento em cada detalhe.",
                   icon: (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-6 w-6"
-                    >
-                      <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z" />
-                      <path d="M10 2c1 .5 2 2 2 5" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
                     </svg>
+
                   ),
-                  features: ["Planejamento estratégico", "Produção criativa", "Distribuição multicanal"],
+                  features: ["Páginas entregues em dias", "Processo direto", "Revisões pontuais"],
                 },
                 {
-                  title: "Gestão de contratos e performance",
+                  title: "Suporte Humano de Verdade",
                   description:
-                    "Administramos todos os aspectos legais e acompanhamos os resultados das campanhas, garantindo transparência e maximização do ROI.",
+                    "Fale direto com quem resolve. Atendimento pessoal, rápido e acessível.",
                   icon: (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -703,14 +648,12 @@ export default function Home() {
                       strokeLinejoin="round"
                       className="h-6 w-6"
                     >
-                      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-                      <polyline points="14 2 14 8 20 8" />
-                      <path d="M16 13H8" />
-                      <path d="M16 17H8" />
-                      <path d="M10 9H8" />
+                      <path d="M20 21v-2a4 4 0 0 0-3-3.87" />
+                      <path d="M4 21v-2a4 4 0 0 1 3-3.87" />
+                      <circle cx="12" cy="7" r="4" />
                     </svg>
                   ),
-                  features: ["Relatórios detalhados", "Análise de ROI", "Otimização contínua"],
+                  features: ["Comunicação via WhatsApp", "Respostas ágeis", "Acompanhamento real"],
                 },
               ].map((item, index) => (
                 <motion.div
@@ -923,32 +866,92 @@ export default function Home() {
               Oferecemos diferentes planos para atender ao seu objetivo. Seja para uma campanha pontual ou para um projeto contínuo, temos a opção certa para você:
             </p>
 
+            {/* Switch Mensal/Anual */}
+            <div className="flex justify-center items-center mb-12 gap-4 select-none">
+              <span
+                className={cn(
+                  "flex items-center gap-1 px-3 py-1 rounded-lg transition-colors duration-300 border border-zinc-700",
+                  !isAnnual
+                    ? "bg-white text-black font-bold shadow"
+                    : "text-zinc-800 bg-transparent"
+                )}
+                style={{ minWidth: 90 }}
+              >
+                <FaRegCalendarAlt className="inline-block mb-0.5" /> Mensal
+              </span>
+              <button
+                className={cn(
+                  "relative w-16 h-9 flex items-center rounded-full border-2 border-zinc-700 transition-all duration-300 outline-none focus:ring-2 focus:ring-zinc-400/50",
+                  !isAnnual ? "bg-zinc-200" : "bg-zinc-900" // <-- muda o fundo quando mensal está ativo
+                )}
+                onClick={() => setIsAnnual((v) => !v)}
+                aria-label="Alternar planos anual/mensal"
+                type="button"
+              >
+                <span
+                  className={cn(
+                    "absolute flex items-center justify-center rounded-full transition-transform duration-300",
+                    isAnnual ? "translate-x-7 bg-black text-white" : "bg-white text-zinc-700"
+                  )}
+                  style={{
+                    top: 1.5,
+                    left: 1.5,
+                    width: 29,
+                    height: 29,
+                    boxShadow: "0 2px 12px 0 rgba(0,0,0,0.12)",
+                    transition: "background 0.3s, color 0.3s, transform 0.3s"
+                  }}
+                >
+                  {isAnnual ? <FaRegStar size={20} /> : <FaRegCalendarAlt size={20} />}
+                </span>
+              </button>
+              <span
+                className={cn(
+                  "flex items-center gap-1 px-3 py-1 rounded-lg transition-colors duration-300 border border-zinc-700",
+                  isAnnual
+                    ? "bg-black text-white font-bold shadow"
+                    : "text-zinc-800 bg-transparent"
+                )}
+                style={{ minWidth: 90 }}
+              >
+                <FaRegStar className="inline-block mb-0.5" /> Anual
+              </span>
+            </div>
+
+            {/* Planos */}
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 max-w-8xl">
               {[
                 {
                   title: "Plano Iniciante",
-                  price: "R$ 69,90/mês",
+                  price: isAnnual ? "R$ 699,00/ano" : "R$ 69,90/mês",
                   benefits: [
                     "Landing Page 100% personalizada",
                     "Hospedagem incluída",
+                    ...(isAnnual ? ["Domínio gratuito"] : []),
                     "Sem relatórios de desempenho",
                     "Sem alterações mensais",
                     "Sem suporte personalizado",
                   ],
+                  paymentLink: isAnnual
+                    ? "https://pagamento.com/anual-iniciante"
+                    : "https://pagamento.com/mensal-iniciante",
                 },
                 {
                   title: "Plano Essencial",
-                  price: "R$ 109,90/mês",
+                  price: isAnnual ? "R$ 1.099,00/ano" : "R$ 109,90/mês",
                   benefits: [
                     "Tudo do Iniciante",
                     "Relatório de desempenho (1 a cada 3 meses)",
                     "Até 1 alteração simples por mês (texto ou imagem)",
                     "Suporte padrão via e-mail",
                   ],
+                  paymentLink: isAnnual
+                    ? "https://pagamento.com/anual-essencial"
+                    : "https://pagamento.com/mensal-essencial",
                 },
                 {
                   title: "Plano Avançado",
-                  price: "R$ 149,90/mês",
+                  price: isAnnual ? "R$ 1.499,00/ano" : "R$ 149,90/mês",
                   benefits: [
                     "Tudo do Essencial",
                     "Até 2 landing pages 100% personalizadas",
@@ -957,10 +960,13 @@ export default function Home() {
                     "Otimização de SEO (intermediária)",
                     "Suporte prioritário via WhatsApp",
                   ],
+                  paymentLink: isAnnual
+                    ? "https://pagamento.com/anual-avancado"
+                    : "https://pagamento.com/mensal-avancado",
                 },
                 {
                   title: "Plano Premium",
-                  price: "R$ 199,90/mês",
+                  price: isAnnual ? "R$ 1.999,00/ano" : "R$ 199,90/mês",
                   benefits: [
                     "Tudo do Avançado",
                     "Até 3 landing pages 100% personalizadas",
@@ -971,6 +977,9 @@ export default function Home() {
                     "Monitoramento e ajustes contínuos de SEO",
                     "Suporte VIP – respostas em até 12 horas úteis",
                   ],
+                  paymentLink: isAnnual
+                    ? "https://pagamento.com/anual-premium"
+                    : "https://pagamento.com/mensal-premium",
                 },
               ].map((plan, i) => (
                 <motion.div
@@ -979,22 +988,31 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="w-full max-w-[600px] mx-auto rounded-2xl border border-white/20 bg-white/10 p-10 text-left backdrop-blur-md flex flex-col justify-between h-full"
+                  className={cn(
+                    "w-full max-w-[600px] mx-auto rounded-2xl border border-white/20 p-10 text-left backdrop-blur-md flex flex-col justify-between h-full transition-all duration-300",
+                    isAnnual
+                      ? "bg-black/60"
+                      : "bg-white/10"
+                  )}
                 >
                   <div>
-                    <h3 className="mb-2 text-2xl font-bold text-black">{plan.title}</h3>
+                    <h3 className={cn(
+                      "mb-2 text-2xl font-bold transition-colors duration-300",
+                      isAnnual ? "text-white" : "text-black"
+                    )}>
+                      {plan.title}
+                    </h3>
                     <div className="mb-4 text-2xl font-extrabold text-white">{plan.price}</div>
                     <ul className="space-y-2 mb-8">
                       {plan.benefits.map((benefit, j) => {
-                        // Para o Plano Iniciante, troca o ícone se o benefício começa com "Sem"
                         const isNegative =
                           plan.title === "Plano Iniciante" && benefit.trim().toLowerCase().startsWith("sem")
                         return (
                           <li key={j} className="flex items-start space-x-2">
                             {isNegative ? (
-                              <X className="mt-0.5 h-4 w-4 text-black flex-shrink-0" />
+                              <X className={cn("mt-0.5 h-4 w-4 flex-shrink-0", isAnnual ? "text-white" : "text-black")} />
                             ) : (
-                              <Check className="mt-0.5 h-4 w-4 text-black flex-shrink-0" />
+                              <Check className={cn("mt-0.5 h-4 w-4 flex-shrink-0", isAnnual ? "text-white" : "text-black")} />
                             )}
                             <span className={isNegative ? "text-white/55 line-through" : ""}>{benefit}</span>
                           </li>
@@ -1002,10 +1020,17 @@ export default function Home() {
                       })}
                     </ul>
                   </div>
-                  <Button className="w-full bg-white text-[#FF0066] hover:bg-white/90 mt-auto">
-                    <span>Assinar agora</span>
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
+                  <a
+                    href={plan.paymentLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full"
+                  >
+                    <Button className="w-full bg-white text-[#FF0066] hover:bg-white/90 mt-auto">
+                      <span>Assinar agora</span>
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </a>
                 </motion.div>
               ))}
             </div>
@@ -1120,27 +1145,18 @@ export default function Home() {
         <span className="sr-only">WhatsApp</span>
         <div className="rounded-full shadow-lg bg-gradient-to-br from-[#9200BE] to-[#FF5500] p-0.5 transition-transform hover:scale-105">
           <div className="flex items-center justify-center rounded-full bg-black p-4">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
+            <Image
+              src="/whatsapp.webp"
+              alt="WhatsApp"
               width={28}
               height={28}
-              viewBox="0 0 24 24"
-              fill="none"
-              className="text-white"
-            >
-              <path
-                d="M17.472 14.382c-.297-.149-1.758-.867-2.031-.967-.273-.099-.471-.148-.67.15-.198.297-.767.967-.94 1.164-.173.198-.347.223-.644.075-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.372-.025-.521-.075-.149-.669-1.612-.916-2.206-.242-.579-.487-.5-.669-.51-.173-.008-.372-.01-.571-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.099 3.205 5.077 4.372.71.306 1.263.489 1.694.626.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.288.173-1.413-.074-.124-.272-.198-.57-.347z"
-                fill="currentColor"
-              />
-              <path
-                d="M12.004 2.003c-5.514 0-9.997 4.483-9.997 9.997 0 1.762.462 3.484 1.34 4.997L2 22l5.145-1.341c1.462.799 3.09 1.217 4.859 1.217 5.514 0 9.997-4.483 9.997-9.997 0-2.664-1.037-5.168-2.922-7.053C17.172 3.04 14.668 2.003 12.004 2.003zm0 17.994c-1.627 0-3.217-.427-4.584-1.236l-.328-.195-3.055.797.814-2.978-.213-.306C3.427 14.217 3.003 12.627 3.003 11c0-4.963 4.038-9.001 9.001-9.001 2.404 0 4.666.936 6.364 2.634 1.698 1.698 2.634 3.96 2.634 6.364 0 4.963-4.038 9.001-9.001 9.001z"
-                fill="currentColor"
-              />
-            </svg>
+              className="object-contain"
+              priority
+            />
           </div>
         </div>
       </a>
-    <ConsultoriaModal isOpen={isModalOpen} onClose={closeModal} />
+      <ConsultoriaModal isOpen={isModalOpen} onClose={closeModal} />
     </div>
   )
 }
