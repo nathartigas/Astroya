@@ -24,6 +24,10 @@ import {
   Check,
   X,
   Settings,
+  CalendarCheck,
+  Search,
+  BarChart3,
+  MonitorSmartphone,
 } from "lucide-react"
 import { IoSettingsOutline } from "react-icons/io5";
 import { FaRegCalendarAlt, FaRegStar } from "react-icons/fa"
@@ -43,6 +47,11 @@ import { GlitchText } from "@/components/glitch-text"
 import { MouseFollower } from "@/components/mouse-follower"
 import { TestimonialCarousel } from "@/components/testimonial-carousel"
 import { ConsultoriaModal } from "@/components/consultoria-modal"
+import { ConsultationModal } from "@/components/feature/consultation-modal"
+import { WorkflowSection } from "@/components/workflow-section"
+
+
+
 
 
 export default function Home() {
@@ -64,6 +73,7 @@ export default function Home() {
   const plansRef = useRef<HTMLDivElement>(null)
 
   const { scrollY } = useScroll()
+
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setScrolled(latest > 50)
@@ -120,6 +130,9 @@ export default function Home() {
   // Adicione este estado no início do componente:
   const [isAnnual, setIsAnnual] = useState(false)
 
+  const [isConsultationModalOpen, setIsConsultationModalOpen] = useState(false);
+
+
   return (
     <div className="relative min-h-screen bg-black text-white selection:bg-[#FF5500] selection:text-white overflow-x-hidden">
       <MouseFollower />
@@ -140,15 +153,16 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Link href="/" className="group relative flex items-center">
+            <Link href="/" className="group relative flex items-center justify-center md:justify-start text-2xl font-bold tracking-tighter">
               <Image
-                src="/Logo_A_Foguete.svg"
-                alt="Astroya logo"
-                width={60}
-                height={30}
-                className="transition-all duration-300 group-hover:opacity-80"
+                src="Logo_A_Foguete.svg"
+                alt="Logo"
+                width={80}
+                height={95}
+                className="object-contain"
               />
             </Link>
+
           </motion.div>
 
           <nav className="hidden md:flex items-center space-x-8">
@@ -185,9 +199,17 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.5 }}
               className="hidden md:block"
             >
-              <GlowingButton className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] hover:from-[#FF5500] hover:to-[#9200BE]">
-                Fale Conosco!
-              </GlowingButton>
+              <ConsultationModal open={isConsultationModalOpen} onOpenChange={setIsConsultationModalOpen}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all"
+                  onClick={() => setIsConsultationModalOpen(true)}
+                >
+                  <CalendarCheck className="mr-2 h-4 w-4" /> Consultoria Gratuita
+                </Button>
+              </ConsultationModal>
+
             </motion.div>
 
             <motion.button
@@ -274,13 +296,19 @@ export default function Home() {
                 <Sparkles className="ml-2 h-4 w-4 md:h-5 md:w-5" />
               </MagneticButton>
 
-              <Button
-                className="flex-1 bg-white text-black rounded-xl border border-zinc-200 hover:bg-[#FF5500] hover:text-white text-base md:text-lg h-12 md:h-14 px-6 md:px-8 transition-all duration-300"
-                onClick={openModal}
+              <ConsultationModal
+                open={isConsultationModalOpen}
+                onOpenChange={setIsConsultationModalOpen}
               >
-                Consultoria Gratuita
-                <Users className="ml-2 h-4 w-4" />
-              </Button>
+                <Button
+                  className="flex-1 bg-white text-black rounded-xl border border-zinc-200 hover:bg-[#FF5500] hover:text-white text-base md:text-lg h-12 md:h-14 px-6 md:px-8 transition-all duration-300"
+                  onClick={() => setIsConsultationModalOpen(true)}
+                >
+                  Consultoria Gratuita
+                  <Users className="ml-2 h-4 w-4" />
+                </Button>
+              </ConsultationModal>
+
             </motion.div>
 
             <motion.div
@@ -466,6 +494,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* WorkFlow Section */}
+            <WorkflowSection />
+
       {/* Services Section */}
       <section id="services" ref={servicesRef} className="relative py-16 md:py-32">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,0,102,0.05),transparent_70%)]"></div>
@@ -506,11 +537,11 @@ export default function Home() {
 
                   icon: (
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-  <path d="M9 18h6" />
-  <path d="M12 2a7 7 0 0 0-4 12.9v3.1h8v-3.1A7 7 0 0 0 12 2z" />
-  <line x1="12" y1="14" x2="12" y2="18" />
-  <path d="M9 18v3h6v-3" />
-</svg>
+                      <path d="M9 18h6" />
+                      <path d="M12 2a7 7 0 0 0-4 12.9v3.1h8v-3.1A7 7 0 0 0 12 2z" />
+                      <line x1="12" y1="14" x2="12" y2="18" />
+                      <path d="M9 18v3h6v-3" />
+                    </svg>
 
 
                   ),
@@ -523,11 +554,17 @@ export default function Home() {
                   description:
                     "Seu site acompanha cada fase do seu negócio. Alterações sempre que precisar, sem dor de cabeça.",
                   icon: (
-                    <h1><IoSettingsOutline /></h1>
-
+                    <h1>
+                      <IoSettingsOutline size={24} /> {/* diminui para 32px */}
+                    </h1>
                   ),
-                  features: ["Ajustes de textos e seções", "Inserção de novos elementos", "Testes A/B e otimizações"],
+                  features: [
+                    "Ajustes de textos e seções",
+                    "Inserção de novos elementos",
+                    "Testes A/B e otimizações",
+                  ],
                 },
+
                 {
                   title: "Relatórios com Insights",
                   description:
@@ -706,7 +743,7 @@ export default function Home() {
 
       {/* Stats Section */}
       <section id="stats" ref={statsRef} className="relative py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,0,102,0.1),transparent_70%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,0,102,0.08),transparent_70%)]"></div>
 
         <div className="container mx-auto px-4 md:px-8 relative z-10">
           <motion.div
@@ -716,20 +753,44 @@ export default function Home() {
             transition={{ duration: 0.7 }}
             className="mx-auto mb-16 max-w-3xl text-center"
           >
-            <h2 className="mb-8 text-4xl font-bold tracking-tighter sm:text-5xl">
-              Números que <span className="bg-gradient-to-r from-[#9200BE] to-[#FF5500] text-transparent bg-clip-text">impressionam</span>
+            <h2 className="mb-8 text-4xl font-bold tracking-tighter sm:text-5xl leading-tight">
+              <span className="block">Números que</span>
+              <span className="block bg-gradient-to-r from-[#9200BE] to-[#FF5500] text-transparent bg-clip-text">
+                revelam oportunidades
+              </span>
             </h2>
+
             <p className="text-xl text-zinc-400">
-              Resultados concretos que demonstram nossa capacidade de transformar influência em impacto mensurável.
+              A presença digital deixou de ser opcional — é essencial para quem quer crescer em um mercado conectado e competitivo.
             </p>
           </motion.div>
 
-          <div className="grid gap-8 md:grid-cols-4">
+          <div className="grid gap-8 md:grid-cols-4 items-stretch">
             {[
-              { value: 500, label: "Influenciadores", icon: Users, suffix: "+" },
-              { value: 200, label: "Marcas parceiras", icon: Award, suffix: "+" },
-              { value: 150, label: "Milhões de alcance", icon: Globe, suffix: "M" },
-              { value: 350, label: "Crescimento médio", icon: TrendingUp, suffix: "%" },
+              {
+                value: 5.64,
+                label: "Pessoas online no mundo",
+                icon: Globe,
+                suffix: "Bi",
+              },
+              {
+                value: 90,
+                label: "Pesquisam online antes de comprar",
+                icon: Search,
+                suffix: "%",
+              },
+              {
+                value: 62,
+                label: "Comparam produtos em sites",
+                icon: BarChart3,
+                suffix: "%",
+              },
+              {
+                value: 85,
+                label: "Valorizam a presença online da marca",
+                icon: MonitorSmartphone,
+                suffix: "%",
+              },
             ].map((stat, index) => (
               <motion.div
                 key={index}
@@ -737,10 +798,9 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group relative"
+                className="group relative h-full"
               >
-                <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-[#FF5500]/50 to-[#9200BE] opacity-0 blur transition-all duration-500 group-hover:opacity-100"></div>
-                <div className="relative flex flex-col items-center rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 text-center backdrop-blur-sm transition-all duration-300 group-hover:border-[#FF0066]/30">
+                <div className="relative flex h-full flex-col items-center justify-between rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 text-center backdrop-blur-sm transition-all duration-300 group-hover:border-[#FF5500]/40 group-hover:drop-shadow-[0_10px_20px_rgba(255,85,0,0.35)]">
                   <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#FF0066]/10">
                     <stat.icon className="h-8 w-8 text-[#FF5500]" />
                   </div>
@@ -748,10 +808,13 @@ export default function Home() {
                   <p className="mt-2 text-zinc-400">{stat.label}</p>
                 </div>
               </motion.div>
+
             ))}
           </div>
+
         </div>
       </section>
+
 
       {/* Cases Section */}
       <section id="cases" ref={casesRef} className="relative py-32">
@@ -1043,17 +1106,16 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid gap-12 md:grid-cols-4 text-center md:text-left">
             <div className="space-y-6 flex flex-col items-center md:items-start">
-              <Link href="/" className="text-2xl font-bold tracking-tighter">
-                <Link href="/" className="group relative flex items-center justify-center md:justify-start">
-                  <Image
-                    src="Logo_A_Foguete.svg"
-                    alt="Astroya logo"
-                    width={100}
-                    height={10}
-                    className="transition-all duration-300 group-hover:opacity-80"
-                  />
-                </Link>
+              <Link href="/" className="group relative flex items-center justify-center md:justify-start">
+                <Image
+                  src="Logo_A_Foguete.svg"
+                  alt="Astroya logo"
+                  width={100}
+                  height={10}
+                  className="transition-all duration-300 group-hover:opacity-80"
+                />
               </Link>
+
               <p className="text-zinc-400">A gente pilota, você decola!</p>
               <div className="flex space-x-4 justify-center md:justify-start">
                 <Link
@@ -1157,6 +1219,7 @@ export default function Home() {
         </div>
       </a>
       <ConsultoriaModal isOpen={isModalOpen} onClose={closeModal} />
+
     </div>
   )
 }

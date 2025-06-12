@@ -14,7 +14,6 @@ export function StatsCounter({ value, suffix = "", className = "", duration = 20
   const [count, setCount] = useState(0)
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
-  const countRef = useRef<number>(0)
   const startTimeRef = useRef<number | null>(null)
 
   useEffect(() => {
@@ -32,8 +31,9 @@ export function StatsCounter({ value, suffix = "", className = "", duration = 20
       const easeOutQuart = (x: number): number => 1 - Math.pow(1 - x, 4)
       const easedProgress = easeOutQuart(percentage)
 
-      countRef.current = Math.floor(easedProgress * value)
-      setCount(countRef.current)
+      const animatedValue = easedProgress * value
+      const formattedValue = value % 1 === 0 ? Math.round(animatedValue) : parseFloat(animatedValue.toFixed(2))
+      setCount(formattedValue)
 
       if (percentage < 1) {
         requestAnimationFrame(animate)
@@ -51,7 +51,7 @@ export function StatsCounter({ value, suffix = "", className = "", duration = 20
 
   return (
     <div ref={ref} className={className}>
-      {count}
+      {count.toLocaleString("pt-BR")}
       {suffix}
     </div>
   )
