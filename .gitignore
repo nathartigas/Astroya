@@ -29,3 +29,18 @@ next-env.d.ts.env.local
 
 # Adicione isso para não commitar suas credenciais
 firebase-admin.json
+
+# Ignorar Firebase build cache
+.firebase/
+.firebase/*
+
+# Ignorar dependências
+node_modules/
+node_modules/*
+
+# Ignorar arquivos de cache do Next.js
+.next/
+.next/*
+
+# Ignorar arquivos grandes do webpack
+*.pack
