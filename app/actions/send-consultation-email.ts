@@ -1,6 +1,6 @@
-
 'use server';
 
+import * as functions from 'firebase-functions';
 import nodemailer from 'nodemailer';
 import type { ConsultationFormValues } from '@/components/feature/consultation-modal';
 import { format } from "date-fns";
@@ -30,7 +30,6 @@ function generateICSContent(data: ConsultationFormValues, eventDurationHours: nu
   } = data;
 
   const startDateICS = formatDateToICS(preferredDate, preferredTime);
-  
   const [hours, minutes] = preferredTime.split(':').map(Number);
   const endDate = new Date(preferredDate.getFullYear(), preferredDate.getMonth(), preferredDate.getDate(), hours + eventDurationHours, minutes);
   const endDateICS = formatDateToICS(endDate, `${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`);
@@ -67,14 +66,13 @@ DTEND:${endDateICS}
 SUMMARY:Consultoria Astroya: ${companyName} (${clientName})
 DESCRIPTION:${description.replace(/\n/g, '\\n')}
 LOCATION:Online / Videoconferência
-ORGANIZER;CN="Astroya":MAILTO:${process.env.EMAIL_FROM_ADDRESS || process.env.EMAIL_SERVER_USER}
+ORGANIZER;CN="Astroya":MAILTO:${process.env.EMAIL_FROM || process.env.EMAIL_USER}
 ATTENDEE;CN="${clientName}";ROLE=REQ-PARTICIPANT:MAILTO:${clientEmail}
 STATUS:TENTATIVE
 SEQUENCE:0
 END:VEVENT
 END:VCALENDAR`;
 }
-
 
 export async function sendConsultationEmailAction(data: ConsultationFormValues) {
   const {
@@ -91,29 +89,32 @@ export async function sendConsultationEmailAction(data: ConsultationFormValues) 
     preferredTime,
   } = data;
 
-  // console.log(`[SendEmailAction] EMAIL_SERVER_USER is defined: ${!!process.env.EMAIL_SERVER_USER}`);
-  // console.log(`[SendEmailAction] EMAIL_SERVER_PASSWORD is defined: ${!!process.env.EMAIL_SERVER_PASSWORD}`);
-  // console.log(`[SendEmailAction] EMAIL_TO_ADDRESS is defined: ${!!process.env.EMAIL_TO_ADDRESS}`);
-  // console.log(`[SendEmailAction] EMAIL_SERVER_HOST is defined: ${!!process.env.EMAIL_SERVER_HOST}`);
-  // console.log(`[SendEmailAction] EMAIL_SERVER_PORT is defined: ${!!process.env.EMAIL_SERVER_PORT}`);
-  // console.log(`[SendEmailAction] EMAIL_SERVER_SECURE is defined: ${!!process.env.EMAIL_SERVER_SECURE}`);
-  // console.log(`[SendEmailAction] EMAIL_FROM_ADDRESS is defined: ${!!process.env.EMAIL_FROM_ADDRESS}`);
+  // Lê as variáveis do Firebase Functions config
+const emailUser = process.env.EMAIL_USER || "";
+const emailPass = process.env.EMAIL_PASS || "";
+const emailTo = process.env.EMAIL_TO || emailUser;
+const emailHost = process.env.EMAIL_HOST || "";
+const emailPort = process.env.EMAIL_PORT || "465";
+const emailSecure = process.env.EMAIL_SECURE === "true" || true;
+const emailFrom = process.env.EMAIL_FROM || emailUser;
 
-  if (!process.env.EMAIL_SERVER_USER || !process.env.EMAIL_SERVER_PASSWORD || !process.env.EMAIL_TO_ADDRESS || !process.env.EMAIL_SERVER_HOST) {
-    console.error('[SendEmailAction] Email service not configured. Missing one or more ENV VARS.');
-    return { success: false, message: 'Serviço de e-mail não configurado no servidor. Contate o administrador.' };
+  // Log para debug
+  console.log('EMAIL CONFIG', { emailUser, emailPass, emailTo, emailHost, emailPort, emailSecure, emailFrom });
+  if (!emailUser || !emailPass || !emailHost || !emailPort) {
+    throw new Error('Email service not configured. Missing one or more ENV VARS.');
   }
 
+  // Configura o Nodemailer
   const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_SERVER_HOST,
-    port: Number(process.env.EMAIL_SERVER_PORT || 587),
-    secure: process.env.EMAIL_SERVER_SECURE === 'true',
+    host: emailHost,
+    port: Number(emailPort || 587),
+    secure: emailSecure,
     auth: {
-      user: process.env.EMAIL_SERVER_USER,
-      pass: process.env.EMAIL_SERVER_PASSWORD,
+      user: emailUser,
+      pass: emailPass,
     },
     tls: {
-        rejectUnauthorized: process.env.NODE_ENV === 'production' 
+      rejectUnauthorized: process.env.NODE_ENV === 'production'
     }
   });
 
@@ -135,8 +136,8 @@ export async function sendConsultationEmailAction(data: ConsultationFormValues) 
   };
 
   const adminMailOptions = {
-    from: `"Astroya Agendamentos" <${process.env.EMAIL_FROM_ADDRESS || process.env.EMAIL_SERVER_USER}>`,
-    to: process.env.EMAIL_TO_ADDRESS,
+    from: `"Astroya Agendamentos" <${emailFrom}>`,
+    to: emailTo,
     subject: `Nova Solicitação de Consultoria Astroya: ${companyName} (Solicitante: ${clientName})`,
     html: `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -144,7 +145,6 @@ export async function sendConsultationEmailAction(data: ConsultationFormValues) 
             <h2 style="color: #FF5500; border-bottom: 2px solid #9200BE; padding-bottom: 10px;">Nova Solicitação de Consultoria Recebida</h2>
             <p>Uma nova solicitação de consultoria foi feita através do site Astroya.</p>
             <p>Um convite de calendário (.ics) está anexado a este e-mail para fácil adição à sua agenda.</p>
-
             <h3 style="color: #8A2BE2; margin-top: 25px;">Detalhes da Solicitação:</h3>
             <ul style="list-style-type: none; padding-left: 0;">
               <li style="margin-bottom: 8px;"><strong>Nome do Solicitante:</strong> ${clientName}</li>
@@ -156,10 +156,8 @@ export async function sendConsultationEmailAction(data: ConsultationFormValues) 
               <li style="margin-bottom: 8px;"><strong>Serviços de Interesse:</strong> ${servicesText}</li>
               <li style="margin-bottom: 8px;"><strong>Data e Horário Preferidos:</strong> ${formattedDate} às ${preferredTime}</li>
             </ul>
-
             <p style="margin-top: 25px;"><strong>Próximos Passos:</strong></p>
             <p>Por favor, entre em contato com o solicitante através do e-mail <a href="mailto:${clientEmail}" style="color: #FF5500;">${clientEmail}</a> para confirmar o agendamento e alinhar os detalhes da consultoria.</p>
-
             <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
             <p style="font-size: 0.9em; color: #777;">Este é um e-mail automático enviado pelo sistema de agendamento da Astroya.</p>
         </div>
@@ -169,7 +167,7 @@ export async function sendConsultationEmailAction(data: ConsultationFormValues) 
   };
 
   const clientMailOptions = {
-    from: `"Astroya" <${process.env.EMAIL_FROM_ADDRESS || process.env.EMAIL_SERVER_USER}>`,
+    from: `"Astroya" <${emailFrom}>`,
     to: clientEmail,
     subject: `Confirmação de Solicitação de Consultoria - Astroya`,
     html: `
@@ -179,7 +177,6 @@ export async function sendConsultationEmailAction(data: ConsultationFormValues) 
             <p>Obrigado por entrar em contato com a Astroya e solicitar uma consultoria estratégica gratuita.</p>
             <p>Recebemos seus dados e entraremos em contato em breve para confirmar o agendamento e discutir os próximos passos.</p>
             <p>Enviamos um convite de calendário (.ics) anexado a este e-mail para sua conveniência. Por favor, adicione-o à sua agenda.</p>
-
             <h3 style="color: #8A2BE2; margin-top: 25px;">Detalhes da sua Solicitação:</h3>
             <ul style="list-style-type: none; padding-left: 0;">
               <li style="margin-bottom: 8px;"><strong>Nome:</strong> ${clientName}</li>
@@ -188,14 +185,11 @@ export async function sendConsultationEmailAction(data: ConsultationFormValues) 
               <li style="margin-bottom: 8px;"><strong>Data e Horário Solicitados:</strong> ${formattedDate} às ${preferredTime}</li>
               <li style="margin-bottom: 8px;"><strong>Serviços de Interesse:</strong> ${servicesText}</li>
             </ul>
-
             <p style="margin-top: 25px;"><strong>O que acontece agora?</strong></p>
             <p>Nossa equipe analisará sua solicitação e entrará em contato com você pelo e-mail <strong>${clientEmail}</strong> para confirmar o horário e prepará-lo para nossa conversa.</p>
             <p>Enquanto isso, sinta-se à vontade para explorar mais sobre nossos serviços em nosso site.</p>
-
             <p style="margin-top: 25px;">Atenciosamente,</p>
             <p style="font-weight: bold; color: #FF5500;">Equipe Astroya</p>
-
             <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
             <p style="font-size: 0.9em; color: #777;">Este é um e-mail de confirmação automático. Se você não solicitou esta consultoria, por favor, ignore este e-mail.</p>
         </div>
@@ -207,46 +201,33 @@ export async function sendConsultationEmailAction(data: ConsultationFormValues) 
   try {
     const dateStr = format(preferredDate, 'yyyy-MM-dd');
     console.log(`[SendEmailAction] Attempting to book for: ${dateStr} ${preferredTime}`);
-    
     // Verifica a disponibilidade antes de tentar "reservar" e enviar e-mails
     const currentUnavailableSlots = await getUnavailableSlotsForDate(dateStr);
     if (currentUnavailableSlots.includes(preferredTime)) {
       console.log(`[SendEmailAction] Pre-check failed: Slot ${dateStr} ${preferredTime} already unavailable.`);
       return { success: false, message: 'Este horário foi reservado ou tornou-se indisponível enquanto você preenchia o formulário. Por favor, escolha outro.' };
     }
-    
     // Tenta "reservar" o slot na memória
     const slotBookedSuccessfully = await attemptToBookSlot(dateStr, preferredTime);
     console.log(`[SendEmailAction] Result of attemptToBookSlot for ${dateStr} ${preferredTime}: ${slotBookedSuccessfully}`);
-
     if (!slotBookedSuccessfully) {
       console.log(`[SendEmailAction] attemptToBookSlot returned false for ${dateStr} ${preferredTime}. This means it was already booked or made unavailable by a rule.`);
       return { success: false, message: 'Este horário não está disponível para agendamento. Por favor, tente outro.' };
     }
-
     // Se o slot foi "reservado" com sucesso, prossiga com o envio dos e-mails
     await transporter.sendMail(adminMailOptions);
     console.log(`[SendEmailAction] Admin email sent for ${dateStr} ${preferredTime}.`);
     await transporter.sendMail(clientMailOptions);
     console.log(`[SendEmailAction] Client email sent for ${dateStr} ${preferredTime}.`);
-    
     return { success: true, message: 'Sua solicitação foi enviada! Enviamos um e-mail de confirmação com um convite de calendário para você.' };
   } catch (error: any) {
     console.error("[SendEmailAction] Falha ao enviar e-mail de consultoria ou erro no processo:", error);
-    // IMPORTANTE: Se o envio do e-mail falhar APÓS o slot ter sido "reservado" em attemptToBookSlot,
-    // idealmente, deveríamos "desfazer" essa reserva.
-    // Para esta simulação em memória, a complexidade de desfazer pode ser omitida,
-    // mas em um sistema real, isso seria importante (ex: remover de `bookedSlots`).
-    // No momento, se o e-mail falhar, o slot pode permanecer "bloqueado" em memória até o reset/reinício.
-
     let detailedMessage = 'Houve um problema ao enviar sua solicitação. Por favor, tente novamente ou entre em contato diretamente.';
-    
     if (error.responseCode) {
       detailedMessage += ` (Código do erro SMTP: ${error.responseCode})`;
     } else if (error.code) { 
-        detailedMessage += ` (Código Nodemailer: ${error.code})`;
+      detailedMessage += ` (Código Nodemailer: ${error.code})`;
     }
-
     return { success: false, message: detailedMessage };
   }
 }

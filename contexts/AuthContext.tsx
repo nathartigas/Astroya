@@ -1,10 +1,9 @@
-
 'use client';
 
 import type { ReactNode } from 'react';
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth } from '@/lib/firebase/config';
+import { auth } from '@/lib/firebase/firebase';
 import {
     onAuthStateChanged,
     signInWithEmailAndPassword,
@@ -18,7 +17,6 @@ const ADMIN_NAME_MAP: Record<string, string> = {
     'lo.laskawski@gmail.com': 'Lorenzo Sorrentino',
 };
 
-
 interface AuthContextType {
     currentUser: User | null;
     userEmail: string | null;
@@ -27,6 +25,7 @@ interface AuthContextType {
     login: (email: string, password_provided: string) => Promise<boolean>;
     logout: () => Promise<void>;
     isLoading: boolean;
+    isAuthChecked: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,18 +36,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [userName, setUserName] = useState<string | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isAuthChecked, setIsAuthChecked] = useState(false);
     const router = useRouter();
     const { toast } = useToast();
 
     useEffect(() => {
-        setIsLoading(true);
+        // Verificar se estamos no cliente e se o auth está disponível
+        if (typeof window === 'undefined' || !auth) {
+            setIsAuthChecked(true); // Marca como verificado se não puder verificar
+            return;
+        }
+
         const unsubscribe = onAuthStateChanged(auth, (user) => {
+            console.log("AuthContext: onAuthStateChanged - user:", user ? user.email : "null");
             if (user) {
                 setCurrentUser(user);
-                const email = user.email; // Guaranteed to be string if user object exists with email
+                const email = user.email;
                 setUserEmail(email);
 
-                if (email) { // Check if email is not null or undefined
+                if (email) {
                     const mappedName = ADMIN_NAME_MAP[email];
                     const firebaseDisplayName = user.displayName;
                     const emailUsernamePart = email.split('@')[0];
@@ -61,7 +67,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         setUserName(emailUsernamePart);
                     }
                 } else {
-                    // Fallback if email is somehow null (should not happen for email/password auth)
                     setUserName(user.displayName || 'Usuário');
                 }
                 setIsAuthenticated(true);
@@ -72,12 +77,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setIsAuthenticated(false);
             }
             setIsLoading(false);
+            setIsAuthChecked(true); // Marca que a verificação inicial foi concluída
+            console.log("AuthContext: State updated - isLoading:", false, "isAuthenticated:", isAuthenticated, "isAuthChecked:", true);
         });
 
         return () => unsubscribe();
     }, []);
 
     const login = async (email_provided: string, password_provided: string): Promise<boolean> => {
+        // Não tentar fazer login no servidor
+        if (typeof window === 'undefined' || !auth) return false;
+
         setIsLoading(true);
         try {
             await signInWithEmailAndPassword(auth, email_provided, password_provided);
@@ -86,18 +96,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (error: any) {
             console.error("Erro no login:", error);
             let errorMessage = "Ocorreu um erro ao tentar fazer login.";
-            // Firebase error codes: https://firebase.google.com/docs/auth/admin/errors
-            if (error.code === 'auth/invalid-credential' ||
-                error.code === 'auth/user-not-found' ||
-                error.code === 'auth/wrong-password') {
-                errorMessage = "E-mail ou senha incorretos. Por favor, tente novamente.";
-            } else if (error.code === 'auth/invalid-email') {
-                errorMessage = "O formato do e-mail é inválido.";
-            } else if (error.code === 'auth/user-disabled') {
-                errorMessage = "Esta conta de usuário foi desabilitada.";
-            } else if (error.code === 'auth/too-many-requests') {
-                errorMessage = "Muitas tentativas de login. Tente novamente mais tarde.";
+
+            if (error.code) {
+                switch (error.code) {
+                    case 'auth/invalid-credential':
+                    case 'auth/user-not-found':
+                    case 'auth/wrong-password':
+                        errorMessage = "E-mail ou senha incorretos. Por favor, tente novamente.";
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = "O formato do e-mail é inválido.";
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = "Esta conta de usuário foi desabilitada.";
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = "Muitas tentativas de login. Tente novamente mais tarde.";
+                        break;
+                    default:
+                        errorMessage = `Erro desconhecido: ${error.code}`;
+                }
             }
+
             toast({ title: "Erro de Login", description: errorMessage, variant: "destructive" });
             setIsLoading(false);
             return false;
@@ -105,21 +125,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const logout = async () => {
+        // Não tentar fazer logout no servidor
+        if (typeof window === 'undefined' || !auth) return;
+
         setIsLoading(true);
         try {
             await firebaseSignOut(auth);
-            router.push('/login');
+            // Remova o redirecionamento daqui
             toast({ title: "Logout realizado com sucesso." });
         } catch (error) {
             console.error("Erro no logout:", error);
-            toast({ title: "Erro ao Sair", description: "Não foi possível fazer logout. Tente novamente.", variant: "destructive" });
+            toast({
+                title: "Erro ao Sair",
+                description: "Não foi possível fazer logout. Tente novamente.",
+                variant: "destructive"
+            });
         } finally {
             setIsLoading(false);
         }
     };
 
+    const contextValue: AuthContextType = {
+        currentUser,
+        userEmail,
+        userName,
+        isAuthenticated,
+        login,
+        logout,
+        isLoading,
+        isAuthChecked,
+    };
+
     return (
-        <AuthContext.Provider value={{ currentUser, userEmail, userName, isAuthenticated, login, logout, isLoading }}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );

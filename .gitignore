@@ -27,3 +27,5 @@ yarn-error.log*
 next-env.d.ts.env.local
 .env.local
 
+# Adicione isso para não commitar suas credenciais
+firebase-admin.json

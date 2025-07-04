@@ -46,9 +46,10 @@ import { RotatingText } from "@/components/rotating-text"
 import { GlitchText } from "@/components/glitch-text"
 import { MouseFollower } from "@/components/mouse-follower"
 import { TestimonialCarousel } from "@/components/testimonial-carousel"
-import { ConsultoriaModal } from "@/components/consultoria-modal"
 import { ConsultationModal } from "@/components/feature/consultation-modal"
+import { BriefingModal } from "@/components/feature/briefing-modal"
 import { WorkflowSection } from "@/components/workflow-section"
+import { TypewriterEffect } from "./TypewriterEffect"
 
 
 
@@ -131,6 +132,18 @@ export default function Home() {
   const [isAnnual, setIsAnnual] = useState(false)
 
   const [isConsultationModalOpen, setIsConsultationModalOpen] = useState(false);
+  const [isBriefingModalOpen, setIsBriefingModalOpen] = useState(false);
+  const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
+
+  const handleOpenBriefingModal = (priceId: string) => {
+    setSelectedPriceId(priceId);
+    setIsBriefingModalOpen(true);
+  };
+
+  const handleOpenConsultationModal = (priceId: string) => {
+    setSelectedPriceId(priceId);
+    setIsConsultationModalOpen(true);
+  };
 
 
   return (
@@ -247,20 +260,21 @@ export default function Home() {
         </div>
 
         <div className="container mx-auto px-4 md:px-8 relative z-10 grid gap-8 py-16 md:py-32 md:grid-cols-2 md:gap-12">
-          {/* Coluna de texto */}
+          {/* Coluna de texto - adicionada classe md:order-2 para posicionar à direita */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="flex flex-col justify-center items-center md:items-start space-y-6 md:space-y-8 text-center md:text-left"
+            className="flex flex-col items-center text-center w-full md:items-start md:text-left space-y-6 md:space-y-8 md:order-1"
           >
+
             <div className="space-y-4 md:space-y-6 w-full flex flex-col items-center md:items-start">
 
 
               <img
                 src="/LOGOINICIAL.svg"
                 alt="Descrição da imagem"
-                className="w-full max-w-[300px] md:max-w-[400px] h-auto object-contain mx-auto md:mx-0"
+                className="w-full max-w-[300px] md:max-w-[400px] h-auto object-contain mx-auto"
               />
 
               <motion.p
@@ -299,6 +313,7 @@ export default function Home() {
               <ConsultationModal
                 open={isConsultationModalOpen}
                 onOpenChange={setIsConsultationModalOpen}
+                priceId={selectedPriceId}
               >
                 <Button
                   className="flex-1 bg-white text-black rounded-xl border border-zinc-200 hover:bg-[#FF5500] hover:text-white text-base md:text-lg h-12 md:h-14 px-6 md:px-8 transition-all duration-300"
@@ -320,26 +335,25 @@ export default function Home() {
             </motion.div>
           </motion.div>
 
-          {/* Coluna da imagem do Mac */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.5, type: "spring" }}
-            className="relative flex items-center justify-center mt-8 md:mt-0"
-          >
-            <div className="relative h-[300px] w-[300px] xs:h-[340px] xs:w-[340px] sm:h-[400px] sm:w-[400px] md:h-[500px] md:w-[500px] lg:h-[600px] lg:w-[600px] max-w-full flex items-center justify-center">
-              {/* Glow laranja atrás do Mac */}
-              <div className="absolute inset-0 z-0 rounded-full bg-[#FF5500] opacity-30 blur-3xl pointer-events-none"></div>
-              <Image
-                src="/Mac.PNG"
-                alt="Macbook"
-                fill
-                className="object-contain relative z-10"
-                style={{ borderRadius: 0 }}
-              />
-              <FloatingIcons />
-            </div>
-          </motion.div>
+{/* Coluna da imagem dos iPhones - TAMANHO AUMENTADO */}
+{/* Coluna da imagem dos iPhones - TAMANHO AUMENTADO */}
+<motion.div
+  initial={{ opacity: 0, scale: 0.8 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ duration: 0.8, delay: 0.5, type: "spring" }}
+  className="relative flex items-center justify-center mt-8 md:mt-0 w-full md:order-2"
+>
+  <div className="w-full max-w-[250px] md:max-w-[350px]">
+    <Image
+      src="/iphones.PNG"
+      alt="iPhones"
+      width={400}   // Aumentado para 400
+      height={600}  // Aumentado para 600
+      className="object-contain rounded-[30px] w-full h-auto"
+    />
+  </div>
+</motion.div>
+
         </div>
 
         <div className="absolute bottom-10 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center">
@@ -495,7 +509,7 @@ export default function Home() {
       </section>
 
       {/* WorkFlow Section */}
-            <WorkflowSection />
+      <WorkflowSection />
 
       {/* Services Section */}
       <section id="services" ref={servicesRef} className="relative py-16 md:py-32">
@@ -853,7 +867,7 @@ export default function Home() {
                 tags: ["Tech", "Lançamento", "B2C"],
               },
               {
-                title: "Dra.KalyZanona",
+                title: "RC Arquitetura",
                 description:
                   "Estratégia omnichannel para nova linha de produtos fitness com micro e macro influenciadores.",
                 image: "/placeholder.svg?height=400&width=600&text=FitLife",
@@ -896,10 +910,10 @@ export default function Home() {
             transition={{ duration: 0.7 }}
             className="mt-16 flex justify-center"
           >
-            <Button className="bg-white text-black hover:bg-white/90 transition-all duration-300 text-lg h-12 px-8">
+            {/*<Button className="bg-white text-black hover:bg-white/90 transition-all duration-300 text-lg h-12 px-8">
               Ver todos os cases
               <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+            </Button> */}
           </motion.div>
         </div>
       </section>
@@ -982,6 +996,7 @@ export default function Home() {
             </div>
 
             {/* Planos */}
+
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 max-w-8xl">
               {[
                 {
@@ -995,9 +1010,9 @@ export default function Home() {
                     "Sem alterações mensais",
                     "Sem suporte personalizado",
                   ],
-                  paymentLink: isAnnual
-                    ? "https://pagamento.com/anual-iniciante"
-                    : "https://pagamento.com/mensal-iniciante",
+                  priceId: isAnnual
+                    ? "price_1Rgq6aEQv4Ia6dW2SlwTXMps" // Replace with actual Stripe Price ID
+                    : "price_1Rg74IEQv4Ia6dW29l4aFNFs", // Replace with actual Stripe Price ID
                 },
                 {
                   title: "Plano Essencial",
@@ -1008,9 +1023,9 @@ export default function Home() {
                     "Até 1 alteração simples por mês (texto ou imagem)",
                     "Suporte padrão via e-mail",
                   ],
-                  paymentLink: isAnnual
-                    ? "https://pagamento.com/anual-essencial"
-                    : "https://pagamento.com/mensal-essencial",
+                  priceId: isAnnual
+                    ? "price_1RgqDUEQv4Ia6dW2FlRoKvxQ" // Replace with actual Stripe Price ID
+                    : "price_1RgqCjEQv4Ia6dW2IJPHGRNl", // Replace with actual Stripe Price ID
                 },
                 {
                   title: "Plano Avançado",
@@ -1023,9 +1038,9 @@ export default function Home() {
                     "Otimização de SEO (intermediária)",
                     "Suporte prioritário via WhatsApp",
                   ],
-                  paymentLink: isAnnual
-                    ? "https://pagamento.com/anual-avancado"
-                    : "https://pagamento.com/mensal-avancado",
+                  priceId: isAnnual
+                    ? "price_1RgqFcEQv4Ia6dW2WCl3Dbxy" // Replace with actual Stripe Price ID
+                    : "price_1RgqF5EQv4Ia6dW2fgrgaCPV", // Replace with actual Stripe Price ID
                 },
                 {
                   title: "Plano Premium",
@@ -1040,9 +1055,9 @@ export default function Home() {
                     "Monitoramento e ajustes contínuos de SEO",
                     "Suporte VIP – respostas em até 12 horas úteis",
                   ],
-                  paymentLink: isAnnual
-                    ? "https://pagamento.com/anual-premium"
-                    : "https://pagamento.com/mensal-premium",
+                  priceId: isAnnual
+                    ? "price_1RgqHiEQv4Ia6dW2NcQvkUls" // Replace with actual Stripe Price ID
+                    : "price_1RgqHGEQv4Ia6dW2wyXkV6Qd", // Replace with actual Stripe Price ID
                 },
               ].map((plan, i) => (
                 <motion.div
@@ -1084,12 +1099,12 @@ export default function Home() {
                     </ul>
                   </div>
                   <a
-                    href={plan.paymentLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full"
+                    onClick={() => handleOpenBriefingModal(plan.priceId)}
+                    className="w-full cursor-pointer"
                   >
-                    <Button className="w-full bg-white text-[#FF0066] hover:bg-white/90 mt-auto">
+                    <Button className="w-full bg-white text-[#FF0066] hover:bg-white/90 mt-auto"
+                      onClick={() => handleOpenBriefingModal(plan.priceId)}
+                    >
                       <span>Assinar agora</span>
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
@@ -1218,7 +1233,13 @@ export default function Home() {
           </div>
         </div>
       </a>
-      <ConsultoriaModal isOpen={isModalOpen} onClose={closeModal} />
+      <BriefingModal
+        open={isBriefingModalOpen}
+        onOpenChange={setIsBriefingModalOpen}
+        priceId={selectedPriceId}
+      >
+        {null}
+      </BriefingModal>
 
     </div>
   )
@@ -1229,11 +1250,11 @@ export function FloatingIcons() {
   const isMobile = useMobile()
 
   const icons = [
-    { Icon: Heart, delay: 0, x: isMobile ? "15%" : "20%", y: isMobile ? "15%" : "20%" },
-    { Icon: Star, delay: 1.5, x: isMobile ? "65%" : "70%", y: isMobile ? "10%" : "15%" },
-    { Icon: Zap, delay: 0.8, x: isMobile ? "75%" : "80%", y: isMobile ? "55%" : "60%" },
-    { Icon: TrendingUp, delay: 2.2, x: isMobile ? "10%" : "15%", y: isMobile ? "65%" : "70%" },
-    { Icon: Award, delay: 1.2, x: isMobile ? "45%" : "50%", y: isMobile ? "75%" : "80%" },
+    { Icon: Heart, delay: 0, x: "15%", y: "15%" },
+    { Icon: Star, delay: 1.5, x: "70%", y: "10%" },
+    { Icon: Zap, delay: 0.8, x: "80%", y: "55%" },
+    { Icon: TrendingUp, delay: 2.2, x: "10%", y: "65%" },
+    { Icon: Award, delay: 1.2, x: "50%", y: "75%" },
   ]
 
   return (
@@ -1274,10 +1295,9 @@ interface MagneticButtonProps {
 export function MagneticButton({ children, className, size = "default", onClick }: MagneticButtonProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const ref = useRef<HTMLDivElement>(null)
-  const isMobile = useMobile()
 
   const handleMouse = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current || isMobile) return
+    if (!ref.current) return
 
     const { clientX, clientY } = e
     const { left, top, width, height } = ref.current.getBoundingClientRect()

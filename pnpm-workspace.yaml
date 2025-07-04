@@ -1,0 +1,8 @@
+packages:
+  - '.'
+  - 'functions'
+
+onlyBuiltDependencies:
+  - '@firebase/util'
+  - protobufjs
+  - sharp

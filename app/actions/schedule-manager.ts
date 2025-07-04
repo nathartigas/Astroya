@@ -1,8 +1,9 @@
 
 'use server';
 
-import initialAvailabilityRulesData from '@/config/availability-rules.json';
 import { formatISO, parseISO, format, startOfMonth, getDaysInMonth, addDays, getYear, getMonth } from 'date-fns';
+import { db } from '@/lib/firebase-admin-init';
+import { FieldValue } from 'firebase-admin/firestore';
 
 console.log('--- [ScheduleManager MODULE LOAD] schedule-manager.ts module is being loaded ---');
 
@@ -18,74 +19,20 @@ export interface DynamicAvailabilityRules {
 
 const BASE_AVAILABLE_TIMES = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"];
 
-// --- HMR Resilient Storage for Development ---
-interface GlobalWithSchedulerState {
-  _astroyaDynamicAvailabilityRulesStore?: DynamicAvailabilityRules;
-  _astroyaBookedSlotsStore?: Record<string, string[]>;
-}
-const g = globalThis as unknown as GlobalWithSchedulerState;
-
-let dynamicAvailabilityRules: DynamicAvailabilityRules;
-let bookedSlots: Record<string, string[]>;
-
-// Function to initialize/reset dynamic rules from the JSON file
-function initializeRulesFromJSON() {
-  console.log('[ScheduleManager initializeRulesFromJSON] CALLED. Populating from availability-rules.json...');
-  let initializedRules: DynamicAvailabilityRules = {};
-  try {
-    const rulesFromFile = (initialAvailabilityRulesData as any).PREDEFINED_AVAILABILITY_RULES || {};
-    for (const dateISO in rulesFromFile) {
-      if (Object.prototype.hasOwnProperty.call(rulesFromFile, dateISO)) {
-        const ruleValue = rulesFromFile[dateISO];
-        if (ruleValue === 'UNAVAILABLE' || (Array.isArray(ruleValue) && ruleValue.every(item => typeof item === 'string'))) {
-          initializedRules[dateISO] = {
-            rule: ruleValue,
-            updatedBy: 'system (json_init)',
-            updatedAt: formatISO(new Date()),
-          };
-        } else {
-            console.warn(`[ScheduleManager initializeRulesFromJSON] WARN: Invalid rule format for date ${dateISO} in JSON. Skipping. Rule:`, ruleValue);
-        }
-      }
-    }
-  } catch (error) {
-    console.error('[ScheduleManager initializeRulesFromJSON] ERROR parsing availability-rules.json or initializing:', error);
-    initializedRules = {}; // Fallback to empty if JSON is malformed
-  }
-  dynamicAvailabilityRules = initializedRules;
-  console.log('[ScheduleManager initializeRulesFromJSON] FINISHED. Current dynamicAvailabilityRules count:', Object.keys(dynamicAvailabilityRules).length);
-}
-
-if (process.env.NODE_ENV === 'production') {
-  console.log('[ScheduleManager PROD_MODE] Initializing stores for production.');
-  dynamicAvailabilityRules = {};
-  bookedSlots = {};
-  initializeRulesFromJSON();
-} else {
-  if (!g._astroyaDynamicAvailabilityRulesStore) {
-    console.log('[ScheduleManager DEV_HMR] Initializing _astroyaDynamicAvailabilityRulesStore on globalThis for the first time.');
-    dynamicAvailabilityRules = {}; 
-    initializeRulesFromJSON();    
-    g._astroyaDynamicAvailabilityRulesStore = dynamicAvailabilityRules; 
-  } else {
-    console.log('[ScheduleManager DEV_HMR] Reusing _astroyaDynamicAvailabilityRulesStore from globalThis.');
-    dynamicAvailabilityRules = g._astroyaDynamicAvailabilityRulesStore;
-  }
-
-  if (!g._astroyaBookedSlotsStore) {
-    console.log('[ScheduleManager DEV_HMR] Initializing _astroyaBookedSlotsStore on globalThis.');
-    bookedSlots = {};
-    g._astroyaBookedSlotsStore = bookedSlots; 
-  } else {
-    console.log('[ScheduleManager DEV_HMR] Reusing _astroyaBookedSlotsStore from globalThis.');
-    bookedSlots = g._astroyaBookedSlotsStore;
-  }
-}
-
 export async function getDynamicAvailabilityRules(): Promise<DynamicAvailabilityRules> {
   console.log('[ScheduleManager getDynamicAvailabilityRules] CALLED.');
-  console.log('[ScheduleManager getDynamicAvailabilityRules] INFO: Returning current rules. Count:', Object.keys(dynamicAvailabilityRules).length);
-  return JSON.parse(JSON.stringify(dynamicAvailabilityRules));
+  try {
+    const snapshot = await db.collection("availability_rules").get();
+    const rules: DynamicAvailabilityRules = {};
+    snapshot.docs.forEach(doc => {
+      rules[doc.id] = doc.data() as RuleDetails;
+    });
+    console.log('[ScheduleManager getDynamicAvailabilityRules] INFO: Returning current rules. Count:', Object.keys(rules).length);
+    return rules;
+  } catch (error) {
+    console.error('[ScheduleManager getDynamicAvailabilityRules] ERROR fetching rules:', error);
+    return {};
+  }
 }
 
 export async function updateDynamicAvailabilityRule(
@@ -113,14 +60,9 @@ export async function updateDynamicAvailabilityRule(
         updatedBy: adminEmail,
         updatedAt: formatISO(new Date()),
     };
-    dynamicAvailabilityRules[dateISO] = newRuleDetails;
-    
-    if (process.env.NODE_ENV !== 'production' && g._astroyaDynamicAvailabilityRulesStore) {
-         g._astroyaDynamicAvailabilityRulesStore[dateISO] = newRuleDetails;
-    }
+    await db.collection("availability_rules").doc(dateISO).set(newRuleDetails);
 
     console.log(`[ScheduleManager updateDynamicAvailabilityRule] SUCCESS: Rule for ${dateISO} updated by ${adminEmail}.`);
-    console.log(`[ScheduleManager updateDynamicAvailabilityRule] INFO: dynamicAvailabilityRules state for ${dateISO} after update:`, dynamicAvailabilityRules[dateISO]);
     return { success: true, message: `Regra para ${dateISO} atualizada.` };
   } catch (error) {
     console.error('[ScheduleManager updateDynamicAvailabilityRule] ERROR:', error);
@@ -131,16 +73,9 @@ export async function updateDynamicAvailabilityRule(
 export async function deleteDynamicAvailabilityRule(dateISO: string): Promise<{ success: boolean; message: string }> {
   console.log(`[ScheduleManager deleteDynamicAvailabilityRule] CALLED for date: ${dateISO}`);
   try {
-    if (dynamicAvailabilityRules.hasOwnProperty(dateISO)) {
-      delete dynamicAvailabilityRules[dateISO];
-      if (process.env.NODE_ENV !== 'production' && g._astroyaDynamicAvailabilityRulesStore && g._astroyaDynamicAvailabilityRulesStore.hasOwnProperty(dateISO)) {
-        delete g._astroyaDynamicAvailabilityRulesStore[dateISO];
-      }
-      console.log(`[ScheduleManager deleteDynamicAvailabilityRule] SUCCESS: Rule for ${dateISO} deleted.`);
-      return { success: true, message: `Regra para ${dateISO} removida.` };
-    }
-    console.warn(`[ScheduleManager deleteDynamicAvailabilityRule] WARN: No rule found to delete for ${dateISO}.`);
-    return { success: false, message: `Nenhuma regra encontrada para ${dateISO}.` };
+    await db.collection("availability_rules").doc(dateISO).delete();
+    console.log(`[ScheduleManager deleteDynamicAvailabilityRule] SUCCESS: Rule for ${dateISO} deleted.`);
+    return { success: true, message: `Regra para ${dateISO} removida.` };
   } catch (error) {
     console.error('[ScheduleManager deleteDynamicAvailabilityRule] ERROR:', error);
     return { success: false, message: 'Erro interno ao deletar regra.' };
@@ -150,10 +85,18 @@ export async function deleteDynamicAvailabilityRule(dateISO: string): Promise<{ 
 export async function getUnavailableSlotsForDate(dateISO: string): Promise<string[]> {
   console.log(`[ScheduleManager getUnavailableSlotsForDate] CALLED for dateISO: ${dateISO}`);
   let unavailableDueToRule: string[] = [];
-  const alreadyBookedForDate: string[] = bookedSlots[dateISO] || [];
+  let alreadyBookedForDate: string[] = [];
   
   try {
-    const ruleDetailsForDate = dynamicAvailabilityRules[dateISO];
+    const ruleDoc = await db.collection("availability_rules").doc(dateISO).get();
+    const ruleDetailsForDate = ruleDoc.data() as RuleDetails | undefined;
+    console.log(`[ScheduleManager getUnavailableSlotsForDate] Firestore ruleDoc for ${dateISO}:`, ruleDetailsForDate);
+
+    const bookedDoc = await db.collection("booked_slots").doc(dateISO).get();
+    if (bookedDoc.exists) {
+      alreadyBookedForDate = bookedDoc.data()?.times || [];
+    }
+    console.log(`[ScheduleManager getUnavailableSlotsForDate] Firestore bookedDoc for ${dateISO}:`, alreadyBookedForDate);
 
     if (ruleDetailsForDate) {
       console.log(`[ScheduleManager getUnavailableSlotsForDate] INFO: Rule details FOUND for ${dateISO}:`, ruleDetailsForDate);
@@ -193,22 +136,11 @@ export async function attemptToBookSlot(dateISO: string, time: string): Promise<
       return false;
     }
 
-    if (bookedSlots[dateISO] && bookedSlots[dateISO].includes(time)) {
-       console.warn(`[ScheduleManager attemptToBookSlot] WARN: Slot ${time} on ${dateISO} is already in bookedSlots. Cannot book again.`);
-       return false;
-    }
-
-    if (!bookedSlots[dateISO]) {
-      bookedSlots[dateISO] = [];
-    }
+    await db.collection("booked_slots").doc(dateISO).set({
+      times: FieldValue.arrayUnion(time)
+    }, { merge: true });
     
-    bookedSlots[dateISO].push(time);
-    bookedSlots[dateISO].sort();
-    
-    if (process.env.NODE_ENV !== 'production' && g._astroyaBookedSlotsStore) {
-        g._astroyaBookedSlotsStore[dateISO] = bookedSlots[dateISO];
-    }
-    console.log(`[ScheduleManager attemptToBookSlot] SUCCESS: Booked ${time} for ${dateISO}. Current bookedSlots for date:`, bookedSlots[dateISO]);
+    console.log(`[ScheduleManager attemptToBookSlot] SUCCESS: Booked ${time} for ${dateISO}.`);
     return true;
   } catch (error) {
     console.error(`[ScheduleManager attemptToBookSlot] ERROR for dateISO ${dateISO}, time ${time}:`, error);
@@ -219,17 +151,16 @@ export async function attemptToBookSlot(dateISO: string, time: string): Promise<
 export async function resetAllDataForPrototyping(): Promise<void> {
   console.log('[ScheduleManager resetAllDataForPrototyping] CALLED. Resetting all booked slots and re-initializing rules from JSON...');
   try {
-    bookedSlots = {};
-    dynamicAvailabilityRules = {}; 
-
-    initializeRulesFromJSON(); 
-
-    if (process.env.NODE_ENV !== 'production') {
-      g._astroyaBookedSlotsStore = bookedSlots; 
-      g._astroyaDynamicAvailabilityRulesStore = dynamicAvailabilityRules; 
-      console.log('[ScheduleManager resetAllDataForPrototyping] DEV_HMR: Stores reset on globalThis.');
+    // Em produção, isso limparia as coleções. Em desenvolvimento, limparia o globalThis.
+    // Para prototipagem, podemos limpar as coleções de teste.
+    if (process.env.NODE_ENV === 'development') {
+      // Limpar globalThis para desenvolvimento
+      const g = globalThis as any;
+      if (g._astroyaDynamicAvailabilityRulesStore) delete g._astroyaDynamicAvailabilityRulesStore;
+      if (g._astroyaBookedSlotsStore) delete g._astroyaBookedSlotsStore;
     }
-    console.log('[ScheduleManager resetAllDataForPrototyping] SUCCESS: Reset complete.');
+    // Em produção, você precisaria de uma função de admin para limpar o Firestore
+    console.log('[ScheduleManager resetAllDataForPrototyping] SUCCESS: Reset complete (Firestore not cleared by this function in production).');
   } catch (error) {
     console.error('[ScheduleManager resetAllDataForPrototyping] ERROR:', error);
   }
@@ -249,7 +180,7 @@ export async function getMonthlyAvailabilitySummary(year: number, month: number)
     const currentDate = addDays(startDate, i);
     const dateISO = format(currentDate, 'yyyy-MM-dd');
     
-    // console.log(`[ScheduleManager getMonthlyAvailabilitySummary] Checking day: ${dateISO}`);
+    console.log(`[ScheduleManager getMonthlyAvailabilitySummary] Checking day: ${dateISO}`);
     const unavailableSlotsForDay = await getUnavailableSlotsForDate(dateISO);
     
     if (unavailableSlotsForDay.length >= BASE_AVAILABLE_TIMES.length) {

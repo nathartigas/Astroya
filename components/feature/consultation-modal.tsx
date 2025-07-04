@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, type ReactNode, useEffect, useCallback } from 'react';
@@ -35,6 +34,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useMobile } from "@/hooks/use-mobile";
 import { Briefcase, CalendarIcon, Building, Globe, Target, CheckSquare, Rocket, Clock, Mail, User, Loader2 } from "lucide-react";
 import { cn } from '@/lib/utils';
 import { sendConsultationEmailAction } from '@/app/actions/send-consultation-email';
@@ -67,11 +67,15 @@ interface ConsultationModalProps {
   children: ReactNode;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  priceId?: string | null;
 }
 
-export function ConsultationModal({ children, open, onOpenChange }: ConsultationModalProps) {
+export function ConsultationModal({ children, open, onOpenChange, priceId }: ConsultationModalProps) {
   const { toast } = useToast();
+  const isMobile = useMobile();
   const [calendarOpen, setCalendarOpen] = useState(false);
+  console.log("ConsultationModal: calendarOpen state", calendarOpen);
+
   const [loadingTimes, setLoadingTimes] = useState(false);
   const [actuallyAvailableTimes, setActuallyAvailableTimes] = useState<string[]>([]);
   
@@ -201,6 +205,38 @@ export function ConsultationModal({ children, open, onOpenChange }: Consultation
         setFullyUnavailableDatesISO(new Set()); 
         setCurrentCalendarView(new Date()); 
         onOpenChange(false);
+
+        if (priceId) {
+          try {
+            const stripeResponse = await fetch('/api/stripe/create-checkout-session', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ priceId }),
+            });
+
+            const stripeData = await stripeResponse.json();
+
+            if (stripeData.url) {
+              window.location.href = stripeData.url; // Redirect to Stripe Checkout
+            } else if (stripeData.error) {
+              toast({
+                title: "Erro no Pagamento",
+                description: stripeData.error,
+                variant: "destructive",
+              });
+            }
+          } catch (stripeError) {
+            console.error("Erro ao iniciar o checkout do Stripe:", stripeError);
+            toast({
+              title: "Erro no Pagamento",
+              description: "Não foi possível iniciar o processo de pagamento. Tente novamente.",
+              variant: "destructive",
+            });
+          }
+        }
+
       } else {
         toast({
           title: "Erro no Agendamento",
@@ -235,19 +271,21 @@ export function ConsultationModal({ children, open, onOpenChange }: Consultation
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => {
+        console.log("ConsultationModal: Dialog onOpenChange - isOpen:", isOpen);
         onOpenChange(isOpen);
         if (!isOpen) { 
             form.reset();
             setActuallyAvailableTimes([]);
             setFullyUnavailableDatesISO(new Set());
             setCurrentCalendarView(new Date());
-            setCalendarOpen(false);
+            setCalendarOpen(false); // Garante que o calendário esteja fechado ao fechar o modal
         } else { 
             setCurrentCalendarView(new Date()); 
+            // Não abre o calendário automaticamente aqui, ele será aberto pelo clique no botão
         }
     }}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="sm:max-w-[600px] w-[95vw] max-h-[90vh] overflow-y-auto p-4">
         <DialogHeader className="p-6 pb-4 bg-card/80 rounded-t-lg">
           <DialogTitle className="text-2xl font-headline gradient-text-animated flex items-center">
             <Briefcase className="mr-3 h-7 w-7 text-primary" />
@@ -260,16 +298,24 @@ export function ConsultationModal({ children, open, onOpenChange }: Consultation
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6">
-            <fieldset disabled={form.formState.isSubmitting || loadingTimes || loadingInitialAvailability} className="space-y-6">
+            <fieldset className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="clientName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center text-foreground/90"><User className="mr-2 h-4 w-4 text-primary" />Seu Nome</FormLabel>
+                      <FormLabel htmlFor="clientName" className="flex items-center text-foreground/90">
+                        <User className="mr-2 h-4 w-4 text-primary" />Seu Nome
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Nome Completo" {...field} className="bg-input text-foreground placeholder:text-muted-foreground rounded-md border-border/50 focus:border-primary" />
+                        <Input
+                          id="clientName"
+                          placeholder="Nome Completo"
+                          {...field}
+                          className="bg-input text-foreground placeholder:text-muted-foreground rounded-md border-border/50 focus:border-primary"
+                          disabled={!selectedDate}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -280,9 +326,18 @@ export function ConsultationModal({ children, open, onOpenChange }: Consultation
                   name="clientEmail"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center text-foreground/90"><Mail className="mr-2 h-4 w-4 text-primary" />Seu E-mail para Contato</FormLabel>
+                      <FormLabel htmlFor="clientEmail" className="flex items-center text-foreground/90">
+                        <Mail className="mr-2 h-4 w-4 text-primary" />Seu E-mail para Contato
+                      </FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="seu.email@exemplo.com" {...field} className="bg-input text-foreground placeholder:text-muted-foreground rounded-md border-border/50 focus:border-primary"/>
+                        <Input
+                          id="clientEmail"
+                          type="email"
+                          placeholder="seu.email@exemplo.com"
+                          {...field}
+                          className="bg-input text-foreground placeholder:text-muted-foreground rounded-md border-border/50 focus:border-primary"
+                          disabled={!selectedDate}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -295,9 +350,17 @@ export function ConsultationModal({ children, open, onOpenChange }: Consultation
                   name="companyName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center text-foreground/90"><Building className="mr-2 h-4 w-4 text-primary" />Nome da Empresa</FormLabel>
+                      <FormLabel htmlFor="companyName" className="flex items-center text-foreground/90">
+                        <Building className="mr-2 h-4 w-4 text-primary" />Nome da Empresa
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Sua Empresa Inc." {...field} className="bg-input text-foreground placeholder:text-muted-foreground rounded-md border-border/50 focus:border-primary" />
+                        <Input
+                          id="companyName"
+                          placeholder="Sua Empresa Inc."
+                          {...field}
+                          className="bg-input text-foreground placeholder:text-muted-foreground rounded-md border-border/50 focus:border-primary"
+                          disabled={!selectedDate}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -308,9 +371,17 @@ export function ConsultationModal({ children, open, onOpenChange }: Consultation
                   name="companyWebsite"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center text-foreground/90"><Globe className="mr-2 h-4 w-4 text-primary" />Website da Empresa (Opcional)</FormLabel>
+                      <FormLabel htmlFor="companyWebsite" className="flex items-center text-foreground/90">
+                        <Globe className="mr-2 h-4 w-4 text-primary" />Website da Empresa (Opcional)
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="https://suaempresa.com.br" {...field} className="bg-input text-foreground placeholder:text-muted-foreground rounded-md border-border/50 focus:border-primary"/>
+                        <Input
+                          id="companyWebsite"
+                          placeholder="https://suaempresa.com.br"
+                          {...field}
+                          className="bg-input text-foreground placeholder:text-muted-foreground rounded-md border-border/50 focus:border-primary"
+                          disabled={!selectedDate}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -323,9 +394,17 @@ export function ConsultationModal({ children, open, onOpenChange }: Consultation
                 name="mainChallenge"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center text-foreground/90"><Rocket className="mr-2 h-4 w-4 text-primary" />Principal Desafio/Objetivo</FormLabel>
+                    <FormLabel htmlFor="mainChallenge" className="flex items-center text-foreground/90">
+                      <Rocket className="mr-2 h-4 w-4 text-primary" />Principal Desafio/Objetivo
+                    </FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Ex: Aumentar leads, melhorar conversões, nova presença online..." {...field} className="min-h-[80px] bg-input text-foreground placeholder:text-muted-foreground rounded-md border-border/50 focus:border-primary" />
+                      <Textarea
+                        id="mainChallenge"
+                        placeholder="Ex: Aumentar leads, melhorar conversões, nova presença online..."
+                        {...field}
+                        className="min-h-[80px] bg-input text-foreground placeholder:text-muted-foreground rounded-md border-border/50 focus:border-primary"
+                        disabled={!selectedDate}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -336,9 +415,17 @@ export function ConsultationModal({ children, open, onOpenChange }: Consultation
                 name="targetAudience"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center text-foreground/90"><Target className="mr-2 h-4 w-4 text-primary" />Público-Alvo</FormLabel>
+                    <FormLabel htmlFor="targetAudience" className="flex items-center text-foreground/90">
+                      <Target className="mr-2 h-4 w-4 text-primary" />Público-Alvo
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: Pequenas empresas de tecnologia, profissionais liberais..." {...field} className="bg-input text-foreground placeholder:text-muted-foreground rounded-md border-border/50 focus:border-primary"/>
+                      <Input
+                        id="targetAudience"
+                        placeholder="Ex: Pequenas empresas de tecnologia, profissionais liberais..."
+                        {...field}
+                        className="bg-input text-foreground placeholder:text-muted-foreground rounded-md border-border/50 focus:border-primary"
+                        disabled={!selectedDate}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -364,6 +451,7 @@ export function ConsultationModal({ children, open, onOpenChange }: Consultation
                               checked={field.value as boolean | undefined}
                               onCheckedChange={field.onChange}
                               className="border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                              disabled={!selectedDate}
                             />
                           </FormControl>
                           <FormLabel className="font-normal text-foreground/80">
@@ -383,57 +471,104 @@ export function ConsultationModal({ children, open, onOpenChange }: Consultation
                   name="preferredDate"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel className="flex items-center text-foreground/90"><CalendarIcon className="mr-2 h-4 w-4 text-primary" />Data Preferida</FormLabel>
-                      <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full pl-3 text-left font-normal bg-input text-foreground placeholder:text-muted-foreground rounded-md border-border/50 hover:bg-accent/50 focus:border-primary",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP", { locale: ptBR })
+                      <FormLabel className="flex items-center text-foreground/90">
+                        <CalendarIcon className="mr-2 h-4 w-4 text-primary" />Data Preferida
+                      </FormLabel>
+                      
+                      {/* Renderização condicional para mobile */}
+                      {isMobile ? (
+                        <>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal bg-input text-foreground placeholder:text-muted-foreground rounded-md border-border/50 hover:bg-accent/50 focus:border-primary mb-2",
+                              !field.value && "text-muted-foreground"
+                            )}
+                            onClick={() => setCalendarOpen(!calendarOpen)}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP", { locale: ptBR })
+                            ) : (
+                              <span>Escolha uma data</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                          
+                          {calendarOpen && (
+                            <div className="mt-2 border rounded-lg p-2 bg-popover">
+                              {loadingInitialAvailability ? (
+                                <div className="flex items-center justify-center p-4">
+                                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                                  <span className="ml-2 text-sm">Carregando datas...</span>
+                                </div>
                               ) : (
-                                <span>Escolha uma data</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          {loadingInitialAvailability && (
-                             <div className="flex items-center justify-center p-10">
-                               <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                               <span className="ml-2 text-sm">Carregando disponibilidade...</span>
-                             </div>
-                          )}
-                          {!loadingInitialAvailability && (
-                              <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={(date: Date | undefined) => {
-                                  if (date) {
+                                <Calendar
+                                  mode="single"
+                                  selected={field.value}
+                                  onSelect={(date) => {
+                                    if (date) {
                                       field.onChange(date);
-                                  }
-                                  setCalendarOpen(false);
-                              }}
-                              disabled={isDateDisabled}
-                              initialFocus
-                              locale={ptBR}
-                              month={currentCalendarView}
-                              onMonthChange={handleMonthChange}
-                              fromDate={new Date()}
-                              />
+                                      setCalendarOpen(false); // Fecha o calendário após seleção
+                                    }
+                                  }}
+                                  disabled={isDateDisabled}
+                                  locale={ptBR}
+                                  month={currentCalendarView}
+                                  onMonthChange={handleMonthChange}
+                                  fromDate={new Date()}
+                                  
+                                />
+                              )}
+                            </div>
                           )}
-                        </PopoverContent>
-                      </Popover>
+                        </>
+                      ) : (
+                        // Versão desktop (popover)
+                        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal bg-input text-foreground placeholder:text-muted-foreground rounded-md border-border/50 hover:bg-accent/50 focus:border-primary",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP", { locale: ptBR })
+                                ) : (
+                                  <span>Escolha uma data</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            {loadingInitialAvailability ? (
+                              <div className="flex items-center justify-center p-10">
+                                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                                <span className="ml-2 text-sm">Carregando disponibilidade...</span>
+                              </div>
+                            ) : (
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={isDateDisabled}
+                                locale={ptBR}
+                                month={currentCalendarView}
+                                onMonthChange={handleMonthChange}
+                                fromDate={new Date()}
+                              />
+                            )}
+                          </PopoverContent>
+                        </Popover>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="preferredTime"
@@ -496,6 +631,7 @@ export function ConsultationModal({ children, open, onOpenChange }: Consultation
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     {(loadingInitialAvailability || loadingTimes) ? "Verificando..." : "Enviando..."}
+
                   </>
                 ) : (
                   "Solicitar Consultoria"
@@ -504,9 +640,11 @@ export function ConsultationModal({ children, open, onOpenChange }: Consultation
             </DialogFooter>
           </form>
         </Form>
+
       </DialogContent>
     </Dialog>
   );
 }
+
 
 

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -16,8 +15,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarIcon, Clock, PlusCircle, Trash2, Ban, ListChecks, Loader2 } from "lucide-react";
-import { updateDynamicAvailabilityRule } from "@/app/actions/schedule-manager";
-import type { RuleDetails } from "@/app/actions/schedule-manager"; // Updated import
+
+// Tipos locais
+export type RuleDetails = {
+  available: boolean;
+  horariosDisponiveis: string[];
+};
 
 const ruleTypeSchema = z.enum(["UNAVAILABLE", "SPECIFIC_TIMES"]);
 
@@ -45,27 +48,27 @@ interface AvailabilityFormProps {
   onRuleAddedOrUpdated: () => void;
   initialData?: { dateISO: string; ruleDetails: RuleDetails };
   adminEmail: string | null;
+  onSaveRule: (date: string, available: boolean, horariosDisponiveis: string[]) => Promise<void>;
 }
 
-// const BASE_AVAILABLE_TIMES = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"];
-
-export function AvailabilityForm({ onRuleAddedOrUpdated, initialData, adminEmail }: AvailabilityFormProps) {
+export function AvailabilityForm({ onRuleAddedOrUpdated, initialData, adminEmail, onSaveRule }: AvailabilityFormProps) {
   const { toast } = useToast();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
-  const initialRuleFromDetails = initialData?.ruleDetails.rule;
-  const [currentSpecificTimes, setCurrentSpecificTimes] = useState<string[]>(
-    initialData && Array.isArray(initialRuleFromDetails) ? initialRuleFromDetails : []
-  );
+
+  // Adaptação: pega os horários disponíveis do RuleDetails
+  const initialAvailable = initialData ? initialData.ruleDetails.available : false;
+  const initialHorarios = initialData ? initialData.ruleDetails.horariosDisponiveis : [];
+
+  const [currentSpecificTimes, setCurrentSpecificTimes] = useState<string[]>(initialHorarios);
   const [newTimeInput, setNewTimeInput] = useState("");
 
   const form = useForm<AvailabilityFormValues>({
     resolver: zodResolver(availabilityFormSchema),
     defaultValues: {
       date: initialData ? parseISO(initialData.dateISO) : new Date(),
-      ruleType: initialData ? (initialRuleFromDetails === 'UNAVAILABLE' ? 'UNAVAILABLE' : 'SPECIFIC_TIMES') : "UNAVAILABLE",
-      specificTimes: initialData && Array.isArray(initialRuleFromDetails) ? initialRuleFromDetails : [],
+      ruleType: initialAvailable ? "SPECIFIC_TIMES" : "UNAVAILABLE",
+      specificTimes: initialHorarios,
     },
   });
 
@@ -73,13 +76,12 @@ export function AvailabilityForm({ onRuleAddedOrUpdated, initialData, adminEmail
 
   useEffect(() => {
     if (initialData) {
-      const ruleFromDetails = initialData.ruleDetails.rule;
       form.reset({
         date: parseISO(initialData.dateISO),
-        ruleType: ruleFromDetails === 'UNAVAILABLE' ? 'UNAVAILABLE' : 'SPECIFIC_TIMES',
-        specificTimes: Array.isArray(ruleFromDetails) ? ruleFromDetails : [],
+        ruleType: initialData.ruleDetails.available ? "SPECIFIC_TIMES" : "UNAVAILABLE",
+        specificTimes: initialData.ruleDetails.horariosDisponiveis,
       });
-      setCurrentSpecificTimes(Array.isArray(ruleFromDetails) ? ruleFromDetails : []);
+      setCurrentSpecificTimes(initialData.ruleDetails.horariosDisponiveis);
     } else {
       form.reset({
         date: new Date(),
@@ -89,7 +91,6 @@ export function AvailabilityForm({ onRuleAddedOrUpdated, initialData, adminEmail
       setCurrentSpecificTimes([]);
     }
   }, [initialData, form]);
-
 
   const handleAddTime = () => {
     if (/^([01]\d|2[0-3]):([0-5]\d)$/.test(newTimeInput) && !currentSpecificTimes.includes(newTimeInput)) {
@@ -117,21 +118,16 @@ export function AvailabilityForm({ onRuleAddedOrUpdated, initialData, adminEmail
     }
 
     const dateISO = format(values.date, "yyyy-MM-dd");
-    let ruleToSend: string[] | 'UNAVAILABLE';
+    let available = values.ruleType === "SPECIFIC_TIMES";
+    let horariosDisponiveis = values.ruleType === "SPECIFIC_TIMES" ? values.specificTimes! : [];
 
-    if (values.ruleType === "UNAVAILABLE") {
-      ruleToSend = "UNAVAILABLE";
-    } else {
-      ruleToSend = values.specificTimes!; 
-    }
-    
-    const result = await updateDynamicAvailabilityRule(dateISO, ruleToSend, adminEmail);
-
-    if (result.success) {
-      toast({ title: "Sucesso", description: result.message, variant: "default" });
-      onRuleAddedOrUpdated(); 
-    } else {
-      toast({ title: "Erro", description: result.message, variant: "destructive" });
+    // Salva no Firestore via API
+    try {
+      await onSaveRule(dateISO, available, horariosDisponiveis);
+      toast({ title: "Sucesso", description: "Regra salva com sucesso!" });
+      onRuleAddedOrUpdated();
+    } catch (error) {
+      toast({ title: "Erro", description: "Não foi possível salvar a regra.", variant: "destructive" });
     }
     setIsLoading(false);
   }

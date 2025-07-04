@@ -1,19 +1,26 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Edit, Loader2, CalendarX2, CalendarCheck2, UserCircle, Clock } from "lucide-react";
-import type { DynamicAvailabilityRules, RuleDetails } from "@/app/actions/schedule-manager";
-import { deleteDynamicAvailabilityRule } from "@/app/actions/schedule-manager";
+import { Trash2, Edit, Loader2, CalendarX2, CalendarCheck2 } from "lucide-react";
 import { useState } from "react";
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
+// Tipos locais
+export type RuleDetails = {
+  available: boolean;
+  horariosDisponiveis: string[];
+};
+
+export type DynamicAvailabilityRules = {
+  [date: string]: RuleDetails;
+};
+
 interface AvailabilityListProps {
   rules: DynamicAvailabilityRules;
-  onRuleDeleted: () => void;
+  onRuleDeleted: (date: string) => void;
   onEditRule: (dateISO: string, ruleDetails: RuleDetails) => void;
   isLoading: boolean;
 }
@@ -24,12 +31,16 @@ export function AvailabilityList({ rules, onRuleDeleted, onEditRule, isLoading }
 
   const handleDelete = async (dateISO: string) => {
     setDeletingId(dateISO);
-    const result = await deleteDynamicAvailabilityRule(dateISO);
-    if (result.success) {
-      toast({ title: "Sucesso", description: result.message });
-      onRuleDeleted();
-    } else {
-      toast({ title: "Erro", description: result.message, variant: "destructive" });
+    try {
+      await fetch("/api/admin/availability", {
+        method: "DELETE",
+        body: JSON.stringify({ date: dateISO }),
+        headers: { "Content-Type": "application/json" },
+      });
+      toast({ title: "Sucesso", description: "Regra excluída com sucesso!" });
+      onRuleDeleted(dateISO);
+    } catch (error) {
+      toast({ title: "Erro", description: "Não foi possível excluir a regra.", variant: "destructive" });
     }
     setDeletingId(null);
   };
@@ -46,25 +57,15 @@ export function AvailabilityList({ rules, onRuleDeleted, onEditRule, isLoading }
   }
 
   if (sortedDates.length === 0) {
-    return <p className="text-muted-foreground mt-4 text-center">Nenhuma regra de disponibilidade dinâmica definida.</p>;
+    return <p className="text-muted-foreground mt-4 text-center">Nenhuma regra de disponibilidade definida.</p>;
   }
 
   return (
     <div className="space-y-4">
       {sortedDates.map((dateISO) => {
         const ruleDetails = rules[dateISO];
-        const isUnavailable = ruleDetails.rule === 'UNAVAILABLE';
+        const isUnavailable = !ruleDetails.available;
         const formattedDate = format(parseISO(dateISO), "PPP", { locale: ptBR });
-
-        let formattedUpdatedAt = "N/A";
-        if (ruleDetails.updatedAt) {
-          try {
-            formattedUpdatedAt = format(parseISO(ruleDetails.updatedAt), "dd/MM/yyyy HH:mm", { locale: ptBR });
-          } catch (e) {
-            console.warn(`Invalid updatedAt for ${dateISO}: ${ruleDetails.updatedAt}`);
-          }
-        }
-
 
         return (
           <Card key={dateISO} className="bg-card/70">
@@ -92,27 +93,10 @@ export function AvailabilityList({ rules, onRuleDeleted, onEditRule, isLoading }
                 <div className="text-sm text-foreground/80">
                   <p className="font-medium">Horários disponíveis específicos:</p>
                   <ul className="list-disc list-inside pl-1">
-                    {(ruleDetails.rule as string[]).map(time => <li key={time}>{time}</li>)}
+                    {ruleDetails.horariosDisponiveis.map(time => <li key={time}>{time}</li>)}
                   </ul>
                 </div>
               )}
-              <CardDescription className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border/50">
-                {ruleDetails.updatedBy && (
-                  <span className="flex items-center mr-3">
-                    <UserCircle className="h-3 w-3 mr-1" />
-                    Modificado por: {ruleDetails.updatedBy}
-                  </span>
-                )}
-                {ruleDetails.updatedAt && (
-                  <span className="flex items-center">
-                    <Clock className="h-3 w-3 mr-1" />
-                    Em: {formattedUpdatedAt}
-                  </span>
-                )}
-                {(!ruleDetails.updatedBy && !ruleDetails.updatedAt) && (
-                  <span>Regra não modificada desde a carga inicial.</span>
-                )}
-              </CardDescription>
             </CardContent>
           </Card>
         );

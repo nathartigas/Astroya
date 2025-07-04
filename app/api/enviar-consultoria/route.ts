@@ -1,4 +1,28 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
+// Certifique-se de que o caminho está correto e o arquivo existe
+import { db } from "../../admin/_lib/firebase-admin"; // Ajuste o caminho conforme a estrutura do seu projeto
+
+// Variáveis de ambiente para e-mail (usando apenas process.env)
+const emailUser = process.env.EMAIL_USER || "";
+const emailPass = process.env.EMAIL_PASS || "";
+const emailHost = process.env.EMAIL_HOST || "";
+const emailPort = process.env.EMAIL_PORT || "";
+
+console.log("EMAIL_USER:", emailUser);
+console.log("EMAIL_PASS:", emailPass ? "definido" : "NÃO DEFINIDO");
+console.log("EMAIL_HOST:", emailHost);
+console.log("EMAIL_PORT:", emailPort);
+
+// Agora crie o transporter normalmente usando essas variáveis
+const transporter = nodemailer.createTransport({
+  host: emailHost,
+  port: Number(emailPort),
+  secure: true,
+  auth: {
+    user: emailUser,
+    pass: emailPass,
+  },
+});
 
 interface FormData {
   nome: string;
@@ -16,20 +40,24 @@ interface FormData {
   referencia: string;
   fase: string;
   dificuldades: string;
+  data: string;      // Adicionado para agendamento
+  horario: string;   // Adicionado para agendamento
 }
 
 export async function POST(request: Request) {
   try {
-    const MAX_PAYLOAD_SIZE = 1048576; // 1MB
-
-    // Verifica o tamanho do payload
-    const contentLength = Number(request.headers.get('content-length') || 0);
-    if (contentLength > MAX_PAYLOAD_SIZE) {
-      return new Response(JSON.stringify({ success: false, message: 'Payload muito grande' }), { status: 413 });
+    // Lê e valida o corpo
+    let formData: FormData;
+    try {
+      formData = await request.json();
+    } catch (err) {
+      return new Response(JSON.stringify({ success: false, message: 'Erro ao ler os dados do formulário' }), { status: 400 });
     }
 
-    // Lê e valida o corpo
-    const formData: FormData = await request.json();
+    // Limite de tamanho do payload (1MB)
+    if (JSON.stringify(formData).length > 1048576) {
+      return new Response(JSON.stringify({ success: false, message: 'Payload muito grande' }), { status: 413 });
+    }
 
     // Validação dos campos obrigatórios
     const requiredFields: (keyof FormData)[] = ['nome', 'email', 'empresa', 'telefone'];
@@ -44,15 +72,6 @@ export async function POST(request: Request) {
     if (!emailRegex.test(formData.email)) {
       return new Response(JSON.stringify({ success: false, message: 'E-mail inválido' }), { status: 400 });
     }
-
-    // Configuração do Nodemailer (exemplo com Gmail)
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
 
     // HTML para Astroya (empresa)
     const professionalEmailHtml = `
@@ -212,17 +231,41 @@ export async function POST(request: Request) {
 </html>
 `;
 
+    // === BLOQUEIO DE HORÁRIO ===
+    // Supondo que você tenha campos data e horario no formData
+    const { data, horario } = formData; // ajuste para os nomes corretos do seu formulário
+
+    // Verifica se já existe agendamento para o mesmo dia e horário
+    const agendamentoExistente = await db
+      .collection("agendamentos")
+      .where("data", "==", data)
+      .where("horario", "==", horario)
+      .get();
+
+    if (!agendamentoExistente.empty) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Horário já agendado. Escolha outro horário." }),
+        { status: 409, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Salva o novo agendamento
+    await db.collection("agendamentos").add({
+      ...formData,
+      criadoEm: new Date().toISOString(),
+    });
+
     // Envio do e-mail para a empresa
     await transporter.sendMail({
-      from: `"Astroya" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER,
+      from: `"Astroya" <${emailUser}>`,
+      to: emailUser,
       subject: `Nova Consultoria de Landing Page - ${formData.empresa}`,
       html: professionalEmailHtml,
     });
 
     // Envio do e-mail de confirmação para o cliente
     await transporter.sendMail({
-      from: `"Astroya" <${process.env.EMAIL_USER}>`,
+      from: `"Astroya" <${emailUser}>`,
       to: formData.email,
       subject: "Recebemos sua solicitação de consultoria 🚀",
       html: clientConfirmationHtml,
