@@ -1,5 +1,5 @@
 // Update the import path below to the correct location of your firebase-admin initialization file
-import { db } from "@/lib/firebase-admin-init";
+import { db } from "../_lib/firebase-admin";
 // If the file does not exist, create it or adjust the path as needed.
 
 export async function GET() {
