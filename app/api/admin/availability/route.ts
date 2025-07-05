@@ -1,6 +1,6 @@
 
 // app/api/admin/availability/route.ts
-import { db } from '../../admin/_lib/firebase-admin';
+import { db } from '../../../admin/_lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
 
 // ... rest of the code remains the same ...
