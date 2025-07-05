@@ -18,6 +18,8 @@ jobs:
         
       - name: Build project
         run: npm run build
+        env:
+          FIREBASE_ADMIN_CREDENTIALS: ${{ secrets.FIREBASE_ADMIN_CREDENTIALS }}
         
           
       - name: Deploy to Firebase
