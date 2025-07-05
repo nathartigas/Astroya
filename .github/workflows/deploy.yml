@@ -16,6 +16,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
+      - name: Debug Firebase Credentials
+        run: |
+          if [ -n "${{ secrets.FIREBASE_ADMIN_CREDENTIALS }}" ]; then
+            echo "FIREBASE_ADMIN_CREDENTIALS is set. Length: $(echo -n '${{ secrets.FIREBASE_ADMIN_CREDENTIALS }}' | wc -c)"
+          else
+            echo "FIREBASE_ADMIN_CREDENTIALS is NOT set."
+          fi
       - name: Build project
         run: npm run build
         env:
