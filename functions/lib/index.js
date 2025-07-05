@@ -35,7 +35,7 @@ const nextApp = (0, next_1.default)({
     conf: {
         distDir: ".next",
     },
-    dir: path_1.default.resolve(__dirname, "..")
+    dir: path_1.default.resolve(__dirname, "..", "..")
 });
 exports.ssrlandingpageastroya = functions.https.onRequest(async (req, res) => {
     try {
