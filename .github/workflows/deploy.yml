@@ -19,7 +19,14 @@ jobs:
       - name: Debug Firebase Credentials
         run: |
           if [ -n "${{ secrets.FIREBASE_ADMIN_CREDENTIALS }}" ]; then
-            echo "FIREBASE_ADMIN_CREDENTIALS is set. Length: $(echo -n '${{ secrets.FIREBASE_ADMIN_CREDENTIALS }}' | wc -c)"
+            SECRET="${{ secrets.FIREBASE_ADMIN_CREDENTIALS }}"
+            LENGTH=$(echo -n "$SECRET" | wc -c)
+            FIRST_10=$(echo -n "$SECRET" | head -c 10)
+            LAST_10=$(echo -n "$SECRET" | tail -c 10)
+            echo "FIREBASE_ADMIN_CREDENTIALS is set."
+            echo "Length: $LENGTH"
+            echo "First 10 chars: $FIRST_10"
+            echo "Last 10 chars: $LAST_10"
           else
             echo "FIREBASE_ADMIN_CREDENTIALS is NOT set."
           fi
